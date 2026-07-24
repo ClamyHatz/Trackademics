@@ -19,7 +19,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 ## Team & Slice Ownership
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status |
 |-------|-------|-----------------|--------|------------|-------|--------------------|--------|
-| 1 — Accounts | | | #1 #2 | name/login | #12 | Data binding | complete |
+| 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
 | 2 — <Slice> | | | | | | | in-progress |
 | 3 — <Slice> | | | | | | | planned |
 | 4 — <Slice> | | | | | | | planned |
