@@ -20,9 +20,9 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status |
 |-------|-------|-----------------|--------|------------|-------|--------------------|--------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
-| 2 — <Slice> | | | | | | | in-progress |
-| 3 — <Slice> | | | | | | | planned |
-| 4 — <Slice> | | | | | | | planned |
+| 2 — Courses & Enrollment| Ayoung Choi | achoi0123 | | | | | planned |
+| 3 — Assignments | | | | | | | planned |
+| 4 — Grades & Statistics| | | | | | | planned |
 
 _Status values: planned · in-progress · complete_
 
