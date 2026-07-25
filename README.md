@@ -18,8 +18,8 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status |
 |-------|-------|-----------------|--------|------------|-------|--------------------|--------|
 | 1 — Accounts | | | #1 #2 | name/login | #12 | Data binding | complete |
-| 2 — <Slice> | | | | | | | in-progress |
-| 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #3 | TableView populated with live data | planned |
+| 2 — Courses & Enrollment| Ayoung Choi | achoi0123 | | | | | planned |
+| 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #3 | TableView populated with live data | complete |
 | 4 — <Slice> | | | | | | | planned |
 
 _Status values: planned · in-progress · complete_
