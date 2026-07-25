@@ -45,7 +45,7 @@ Issue if the team later decides to attempt it for extra credit._
 ## Extra Credit Log
 | Item | Who | Evidence (Issue/PR) |
 |------|-----|---------------------|
-| Built Slice 5 | | #34 |
+| Built Slice 5 | |  |
 
 ## Build & Run
 ```
