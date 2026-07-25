@@ -22,7 +22,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 | 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
 | 2 — Courses & Enrollment| Ayoung Choi | achoi0123 | | | | | planned |
 | 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #5 | TableView populated with live data | planned |
-| 4 — Grades & Statistics| | | | | | | planned |
+| 4 — Grades & Statistics| Lily Keus | ClamyHatz | | | | entry + class stats | planned |
 
 _Status values: planned · in-progress · complete_
 
@@ -36,7 +36,7 @@ Issue if the team later decides to attempt it for extra credit._
 ## Code Review Log
 | PR | Author | Human reviewer(s) | AI review (link) | Outcome |
 |----|--------|-------------------|------------------|---------|
-| #12 | | | <link or commit> | merged |
+| #2 | Bay Shahryar | Lily Keus | NA | merged |
 
 ## AI Usage Log
 - **AI-drafted tests:** <link to TESTING.md / commit> — per owner.
