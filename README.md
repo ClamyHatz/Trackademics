@@ -31,8 +31,7 @@ _Slices and beyond-scope items we are consciously NOT building. Move an item to 
 Issue if the team later decides to attempt it for extra credit._
 
 - Slice 5 — <name>: not building (team size).
-- <Slice 2>: <beyond-scope item> — out of scope.
-- <Slice 3>: <beyond-scope item> — out of scope.
+
 
 ## Code Review Log
 | PR | Author | Human reviewer(s) | AI review (link) | Outcome |
