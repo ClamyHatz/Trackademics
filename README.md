@@ -12,16 +12,14 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 
 # <App Name>
 
-<One-line description.> CST 338 Project 2 — Team ALTool Devs.
-
-## Grade / Assignment Tracker
+<One-line description.> CST 338 Project 2 — Team **<Team Name>**.
 
 ## Team & Slice Ownership
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status |
 |-------|-------|-----------------|--------|------------|-------|--------------------|--------|
-| 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
+| 1 — Accounts | | | #1 #2 | name/login | #12 | Data binding | complete |
 | 2 — <Slice> | | | | | | | in-progress |
-| 3 — <Slice> | | | | | | | planned |
+| 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #3 | TableView populated with live data | planned |
 | 4 — <Slice> | | | | | | | planned |
 
 _Status values: planned · in-progress · complete_
