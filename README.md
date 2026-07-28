@@ -20,7 +20,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status |
 |-------|-------|-----------------|--------|------------|-------|--------------------|--------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
-| 2 — Courses & Enrollment| Ayoung Choi | achoi0123 | | | | | planned |
+| 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment | | Data binding (ObservableList / Property) | planned |
 | 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #5 | TableView populated with live data | planned |
 | 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 | lily/grade-viewer | | TableView / ListView populated with live data | planned |
 
