@@ -21,8 +21,8 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 |-------|-------|-----------------|--------|------------|-------|--------------------|--------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
 | 2 — Courses & Enrollment| Ayoung Choi | achoi0123 | | | | | planned |
-| 3 — Assignments | | | | | | | planned |
-| 4 — Grades & Statistics| | | | | | | planned |
+| 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #5 | TableView populated with live data | planned |
+| 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 | lily/grade-viewer | | TableView / ListView populated with live data | planned |
 
 _Status values: planned · in-progress · complete_
 
@@ -31,13 +31,12 @@ _Slices and beyond-scope items we are consciously NOT building. Move an item to 
 Issue if the team later decides to attempt it for extra credit._
 
 - Slice 5 — <name>: not building (team size).
-- <Slice 2>: <beyond-scope item> — out of scope.
-- <Slice 3>: <beyond-scope item> — out of scope.
+
 
 ## Code Review Log
 | PR | Author | Human reviewer(s) | AI review (link) | Outcome |
 |----|--------|-------------------|------------------|---------|
-| #12 | | | <link or commit> | merged |
+| #2 | Bay Shahryar | Lily Keus | NA | merged |
 
 ## AI Usage Log
 - **AI-drafted tests:** <link to TESTING.md / commit> — per owner.
@@ -46,7 +45,7 @@ Issue if the team later decides to attempt it for extra credit._
 ## Extra Credit Log
 | Item | Who | Evidence (Issue/PR) |
 |------|-----|---------------------|
-| Built Slice 5 | | #34 |
+| Built Slice 5 | |  |
 
 ## Build & Run
 ```
