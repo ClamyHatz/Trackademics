@@ -22,7 +22,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 | 1 — Accounts | Bay Shahryar | baycs | #1 | bay/accounts-readme | #2 | Notifications/alerts | planned |
 | 2 — Courses & Enrollment| Ayoung Choi | achoi0123 | | | | | planned |
 | 3 — Assignments | Estefan Vicencio | stef-VnV | #3 | estefan/assignments | #5 | TableView populated with live data | planned |
-| 4 — Grades & Statistics| Lily Keus | ClamyHatz | | | | entry + class stats | planned |
+| 4 — Grades & Statistics| Lily Keus | ClamyHatz | | | | TableView / ListView populated with live data | planned |
 
 _Status values: planned · in-progress · complete_
 
