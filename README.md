@@ -36,7 +36,7 @@ Issue if the team later decides to attempt it for extra credit._
 ## Code Review Log
 | PR | Author | Human reviewer(s) | AI review (link) | Outcome |
 |----|--------|-------------------|------------------|---------|
-| #2 | Bay Shahryar | Lily Keus | NA | merged |
+|  |  |  |  |  |
 
 ## AI Usage Log
 - **AI-drafted tests:** <link to TESTING.md / commit> — per owner.
