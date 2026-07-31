@@ -16,6 +16,10 @@ import javafx.stage.Stage;
  * each private builder loads its scene from an FXML file instead of building
  * controls in code.
  *
+ * After loading an FXML, the factory hands the Stage to the scene's controller
+ * if that controller implements StageAware. This lets controllers trigger
+ * navigation to other scenes.
+ *
  * @author Bay Shahryar
  * @version 0.1.0
  * @since 7/28/26
@@ -29,7 +33,7 @@ public class SceneFactory {
      * Creates the Scene for the requested scene type.
      *
      * @param type  the scene to build
-     * @param stage the primary Stage (passed through so builders can use it if needed)
+     * @param stage the primary Stage, handed to the controller if it is StageAware
      * @return the built Scene, ready for the caller to install with setScene
      */
     public static Scene create(SceneType type, Stage stage) {
@@ -44,36 +48,38 @@ public class SceneFactory {
     }
 
     private static Scene buildLoginScene(Stage stage) {
-        return loadFxml(SceneType.LOGIN);
+        return loadFxml(SceneType.LOGIN, stage);
     }
 
     private static Scene buildRegisterScene(Stage stage) {
-        return loadFxml(SceneType.REGISTER);
+        return loadFxml(SceneType.REGISTER, stage);
     }
 
     private static Scene buildDashboardScene(Stage stage) {
-        return loadFxml(SceneType.DASHBOARD);
+        return loadFxml(SceneType.DASHBOARD, stage);
     }
 
     private static Scene buildCoursesScene(Stage stage) {
-        return loadFxml(SceneType.COURSES);
+        return loadFxml(SceneType.COURSES, stage);
     }
 
     private static Scene buildAssignmentsScene(Stage stage) {
-        return loadFxml(SceneType.ASSIGNMENTS);
+        return loadFxml(SceneType.ASSIGNMENTS, stage);
     }
 
     private static Scene buildGradesScene(Stage stage) {
-        return loadFxml(SceneType.GRADES);
+        return loadFxml(SceneType.GRADES, stage);
     }
 
     /**
-     * Loads the FXML file for a scene type and wraps it in a Scene.
+     * Loads the FXML file for a scene type, hands the Stage to the controller
+     * if it is StageAware, and wraps the result in a Scene.
      *
-     * @param type the scene whose FXML should be loaded
+     * @param type  the scene whose FXML should be loaded
+     * @param stage the primary Stage, passed to a StageAware controller
      * @return a Scene built from the loaded FXML
      */
-    private static Scene loadFxml(SceneType type) {
+    private static Scene loadFxml(SceneType type, Stage stage) {
         String fxmlFile = type.getFxmlFile();
         URL location = SceneFactory.class.getResource(fxmlFile);
 
@@ -86,6 +92,12 @@ public class SceneFactory {
         try {
             FXMLLoader loader = new FXMLLoader(location);
             Parent root = loader.load();
+
+            Object controller = loader.getController();
+            if (controller instanceof StageAware) {
+                ((StageAware) controller).setStage(stage);
+            }
+
             return new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load FXML for " + type, e);
