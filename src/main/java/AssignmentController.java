@@ -6,6 +6,7 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -35,6 +36,9 @@ public class AssignmentController implements StageAware {
 
   @FXML
   private TableColumn<Assignment, String> statusColumn;
+
+  @FXML
+  private Label messageLabel;
 
   /**
    * Gives the controller the main window.
@@ -73,6 +77,47 @@ public class AssignmentController implements StageAware {
         SceneFactory.create(
             SceneType.ASSIGNMENT_FORM,
             stage));
+  }
+
+  /**
+   * Deletes the selected assignment.
+   */
+  @FXML
+  private void deleteAssignment() {
+    Assignment selectedAssignment =
+        assignmentTable
+            .getSelectionModel()
+            .getSelectedItem();
+
+    if (selectedAssignment == null) {
+      messageLabel.setText(
+          "Select an assignment first.");
+      return;
+    }
+
+    try {
+      Connection connection =
+          DatabaseConnection.getConnection();
+
+      AssignmentDao assignmentDao =
+          new AssignmentDao(connection);
+
+      assignmentDao.delete(
+          selectedAssignment.getAssignmentId());
+
+      connection.close();
+
+      loadAssignments();
+
+      messageLabel.setText(
+          "Assignment deleted.");
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not delete the assignment.");
+
+      exception.printStackTrace();
+    }
   }
 
   /**
