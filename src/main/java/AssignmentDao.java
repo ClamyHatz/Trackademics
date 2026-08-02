@@ -3,6 +3,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 /**
  * Handles the database work for assignments.
@@ -60,5 +61,63 @@ public class AssignmentDao {
 
     keys.close();
     statement.close();
+  }
+
+  /**
+   * Finds an assignment by its ID.
+   */
+  public Assignment findById(int assignmentId)
+      throws SQLException {
+
+    String sql =
+        "SELECT * FROM assignments "
+            + "WHERE assignment_id = ?";
+
+    PreparedStatement statement =
+        connection.prepareStatement(sql);
+
+    statement.setInt(1, assignmentId);
+
+    ResultSet result =
+        statement.executeQuery();
+
+    Assignment assignment = null;
+
+    if (result.next()) {
+      int classId =
+          result.getInt("class_id");
+
+      String title =
+          result.getString("title");
+
+      String description =
+          result.getString("description");
+
+      String dueDateText =
+          result.getString("due_date");
+
+      double pointsPossible =
+          result.getDouble("points_possible");
+
+      String status =
+          result.getString("status");
+
+      LocalDate dueDate =
+          LocalDate.parse(dueDateText);
+
+      assignment = new Assignment(
+          assignmentId,
+          classId,
+          title,
+          description,
+          dueDate,
+          pointsPossible,
+          status);
+    }
+
+    result.close();
+    statement.close();
+
+    return assignment;
   }
 }
