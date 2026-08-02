@@ -3,6 +3,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -11,14 +12,19 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 /**
- * @description: Controls the form for adding an assignment.
+ * @description: Controls the form for adding or editing an assignment.
  * @author Estefan Vicencio
  * @version 0.1.0
  * @since 8/2/2026
  */
 public class AssignmentFormController implements StageAware {
 
+  private static Assignment assignmentToEdit;
+
   private Stage stage;
+
+  @FXML
+  private Label formTitleLabel;
 
   @FXML
   private TextField classIdField;
@@ -39,7 +45,19 @@ public class AssignmentFormController implements StageAware {
   private ComboBox<String> statusBox;
 
   @FXML
+  private Button saveButton;
+
+  @FXML
   private Label messageLabel;
+
+  /**
+   * Gives the form an assignment to edit.
+   */
+  public static void setAssignmentToEdit(
+      Assignment assignment) {
+
+    assignmentToEdit = assignment;
+  }
 
   /**
    * Gives the controller the main window.
@@ -50,7 +68,7 @@ public class AssignmentFormController implements StageAware {
   }
 
   /**
-   * Sets up the status choices.
+   * Sets up the form.
    */
   @FXML
   public void initialize() {
@@ -59,10 +77,42 @@ public class AssignmentFormController implements StageAware {
     statusBox.getItems().add("Completed");
 
     statusBox.setValue("Not Started");
+
+    if (assignmentToEdit != null) {
+      loadAssignment();
+    }
   }
 
   /**
-   * Saves a new assignment.
+   * Puts the selected assignment into the form.
+   */
+  private void loadAssignment() {
+    formTitleLabel.setText("Edit Assignment");
+    saveButton.setText("Update Assignment");
+
+    classIdField.setText(
+        String.valueOf(
+            assignmentToEdit.getClassId()));
+
+    titleField.setText(
+        assignmentToEdit.getTitle());
+
+    descriptionField.setText(
+        assignmentToEdit.getDescription());
+
+    dueDatePicker.setValue(
+        assignmentToEdit.getDueDate());
+
+    pointsField.setText(
+        String.valueOf(
+            assignmentToEdit.getPointsPossible()));
+
+    statusBox.setValue(
+        assignmentToEdit.getStatus());
+  }
+
+  /**
+   * Saves or updates an assignment.
    */
   @FXML
   private void saveAssignment() {
@@ -72,21 +122,25 @@ public class AssignmentFormController implements StageAware {
     String status = statusBox.getValue();
 
     if (title.isBlank()) {
-      messageLabel.setText("A title is required.");
+      messageLabel.setText(
+          "A title is required.");
       return;
     }
 
     if (dueDate == null) {
-      messageLabel.setText("A due date is required.");
+      messageLabel.setText(
+          "A due date is required.");
       return;
     }
 
     try {
       int classId =
-          Integer.parseInt(classIdField.getText());
+          Integer.parseInt(
+              classIdField.getText());
 
       double points =
-          Double.parseDouble(pointsField.getText());
+          Double.parseDouble(
+              pointsField.getText());
 
       if (classId <= 0) {
         messageLabel.setText(
@@ -100,28 +154,49 @@ public class AssignmentFormController implements StageAware {
         return;
       }
 
-      Assignment assignment =
-          new Assignment(
-              classId,
-              title,
-              description,
-              dueDate,
-              points,
-              status);
-
       Connection connection =
           DatabaseConnection.getConnection();
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
 
-      assignmentDao.insert(assignment);
+      if (assignmentToEdit == null) {
+        Assignment assignment =
+            new Assignment(
+                classId,
+                title,
+                description,
+                dueDate,
+                points,
+                status);
+
+        assignmentDao.insert(assignment);
+
+        messageLabel.setText(
+            "Assignment saved.");
+
+        clearForm();
+
+      } else {
+        assignmentToEdit.setClassId(classId);
+        assignmentToEdit.setTitle(title);
+        assignmentToEdit.setDescription(description);
+        assignmentToEdit.setDueDate(dueDate);
+        assignmentToEdit.setPointsPossible(points);
+        assignmentToEdit.setStatus(status);
+
+        assignmentDao.update(
+            assignmentToEdit);
+
+        assignmentToEdit = null;
+
+        stage.setScene(
+            SceneFactory.create(
+                SceneType.ASSIGNMENTS,
+                stage));
+      }
+
       connection.close();
-
-      messageLabel.setText(
-          "Assignment saved.");
-
-      clearForm();
 
     } catch (NumberFormatException exception) {
       messageLabel.setText(
@@ -140,6 +215,8 @@ public class AssignmentFormController implements StageAware {
    */
   @FXML
   private void goBackToAssignments() {
+    assignmentToEdit = null;
+
     stage.setScene(
         SceneFactory.create(
             SceneType.ASSIGNMENTS,

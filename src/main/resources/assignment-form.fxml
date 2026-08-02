@@ -16,7 +16,8 @@
   prefHeight="600.0"
   style="-fx-padding: 20;">
 
-  <Label text="Add Assignment"
+  <Label fx:id="formTitleLabel"
+    text="Add Assignment"
     style="-fx-font-size: 24px;" />
 
   <Label text="Class ID" />
@@ -51,7 +52,8 @@
 
   <HBox spacing="10.0">
 
-    <Button text="Save Assignment"
+    <Button fx:id="saveButton"
+      text="Save Assignment"
       onAction="#saveAssignment" />
 
     <Button text="Back to Assignments"
