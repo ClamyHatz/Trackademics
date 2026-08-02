@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<!--
+  Placeholder for the enrollment scene.
+  The real scene shows the selected class on the left and the students in it on
+  the right, with enroll and drop buttons. Here for now so the scene factory has
+  something to load for ENROLLMENT.
+-->
+<VBox alignment="CENTER" spacing="12.0"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
+    <padding>
+        <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
+    </padding>
+    <children>
+        <Label text="Enrollment"/>
+        <Label text="Class info and student roster go here."/>
+    </children>
+</VBox>
