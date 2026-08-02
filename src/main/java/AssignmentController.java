@@ -72,6 +72,8 @@ public class AssignmentController {
               savedAssignments);
 
       assignmentTable.setItems(assignments);
+
+      connection.close();
     } catch (SQLException exception) {
       System.out.println(
           "Could not load assignments.");
