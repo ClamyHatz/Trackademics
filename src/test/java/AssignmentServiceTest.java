@@ -12,9 +12,6 @@ import org.junit.jupiter.api.Test;
  */
 public class AssignmentServiceTest {
 
-  /**
-   * Tests assignment information that is valid.
-   */
   @Test
   public void validAssignmentTest() {
     AssignmentService service = new AssignmentService();
@@ -29,9 +26,6 @@ public class AssignmentServiceTest {
     assertEquals("", message);
   }
 
-  /**
-   * Tests a class ID of zero.
-   */
   @Test
   public void invalidClassIdTest() {
     AssignmentService service = new AssignmentService();
@@ -48,9 +42,6 @@ public class AssignmentServiceTest {
         message);
   }
 
-  /**
-   * Tests an assignment without a title.
-   */
   @Test
   public void missingTitleTest() {
     AssignmentService service = new AssignmentService();
@@ -67,9 +58,6 @@ public class AssignmentServiceTest {
         message);
   }
 
-  /**
-   * Tests an assignment without a due date.
-   */
   @Test
   public void missingDueDateTest() {
     AssignmentService service = new AssignmentService();
@@ -86,9 +74,6 @@ public class AssignmentServiceTest {
         message);
   }
 
-  /**
-   * Tests an assignment with zero possible points.
-   */
   @Test
   public void zeroPointsTest() {
     AssignmentService service = new AssignmentService();
