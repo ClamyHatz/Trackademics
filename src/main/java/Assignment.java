@@ -56,4 +56,53 @@ public class Assignment {
     this.pointsPossible = pointsPossible;
     this.status = status;
   }
+
+  /**
+   * Gets the assignment ID.
+   */
+  public int getAssignmentId() {
+    return assignmentId;
+  }
+
+  /**
+   * Gets the class ID.
+   */
+  public int getClassId() {
+    return classId;
+  }
+
+  /**
+   * Gets the assignment title.
+   */
+  public String getTitle() {
+    return title;
+  }
+
+  /**
+   * Gets the assignment description.
+   */
+  public String getDescription() {
+    return description;
+  }
+
+  /**
+   * Gets the assignment due date.
+   */
+  public LocalDate getDueDate() {
+    return dueDate;
+  }
+
+  /**
+   * Gets the points possible.
+   */
+  public double getPointsPossible() {
+    return pointsPossible;
+  }
+
+  /**
+   * Gets the assignment status.
+   */
+  public String getStatus() {
+    return status;
+  }
 }
