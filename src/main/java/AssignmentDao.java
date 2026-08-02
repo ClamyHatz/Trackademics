@@ -187,4 +187,67 @@ public class AssignmentDao {
 
     return assignments;
   }
+
+  /**
+   * Gets every assignment for one class.
+   */
+  public List<Assignment> findByClassId(int classId)
+      throws SQLException {
+
+    String sql =
+        "SELECT * FROM assignments "
+            + "WHERE class_id = ? "
+            + "ORDER BY due_date";
+
+    PreparedStatement statement =
+        connection.prepareStatement(sql);
+
+    statement.setInt(1, classId);
+
+    ResultSet result =
+        statement.executeQuery();
+
+    List<Assignment> assignments =
+        new ArrayList<>();
+
+    while (result.next()) {
+      int assignmentId =
+          result.getInt("assignment_id");
+
+      String title =
+          result.getString("title");
+
+      String description =
+          result.getString("description");
+
+      String dueDateText =
+          result.getString("due_date");
+
+      double pointsPossible =
+          result.getDouble("points_possible");
+
+      String status =
+          result.getString("status");
+
+      LocalDate dueDate =
+          LocalDate.parse(dueDateText);
+
+      Assignment assignment =
+          new Assignment(
+              assignmentId,
+              classId,
+              title,
+              description,
+              dueDate,
+              pointsPossible,
+              status);
+
+      assignments.add(assignment);
+    }
+
+    result.close();
+    statement.close();
+
+    return assignments;
+  }
 }
