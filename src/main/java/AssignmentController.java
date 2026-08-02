@@ -69,10 +69,37 @@ public class AssignmentController implements StageAware {
   }
 
   /**
-   * Opens the form for adding an assignment.
+   * Opens an empty form for adding an assignment.
    */
   @FXML
   private void openAssignmentForm() {
+    AssignmentFormController.setAssignmentToEdit(null);
+
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.ASSIGNMENT_FORM,
+            stage));
+  }
+
+  /**
+   * Opens the selected assignment in the edit form.
+   */
+  @FXML
+  private void editAssignment() {
+    Assignment selectedAssignment =
+        assignmentTable
+            .getSelectionModel()
+            .getSelectedItem();
+
+    if (selectedAssignment == null) {
+      messageLabel.setText(
+          "Select an assignment first.");
+      return;
+    }
+
+    AssignmentFormController.setAssignmentToEdit(
+        selectedAssignment);
+
     stage.setScene(
         SceneFactory.create(
             SceneType.ASSIGNMENT_FORM,

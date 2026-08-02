@@ -63,7 +63,8 @@
         <Button text="Add Assignment"
           onAction="#openAssignmentForm" />
 
-        <Button text="Edit Assignment" />
+        <Button text="Edit Assignment"
+          onAction="#editAssignment" />
 
         <Button text="Delete Assignment"
           onAction="#deleteAssignment" />
