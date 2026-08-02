@@ -250,4 +250,74 @@ public class AssignmentDao {
 
     return assignments;
   }
+
+  /**
+   * Updates an assignment in the database.
+   */
+  public void update(Assignment assignment)
+      throws SQLException {
+
+    String sql =
+        "UPDATE assignments SET "
+            + "class_id = ?, "
+            + "title = ?, "
+            + "description = ?, "
+            + "due_date = ?, "
+            + "points_possible = ?, "
+            + "status = ? "
+            + "WHERE assignment_id = ?";
+
+    PreparedStatement statement =
+        connection.prepareStatement(sql);
+
+    statement.setInt(
+        1,
+        assignment.getClassId());
+
+    statement.setString(
+        2,
+        assignment.getTitle());
+
+    statement.setString(
+        3,
+        assignment.getDescription());
+
+    statement.setString(
+        4,
+        assignment.getDueDate().toString());
+
+    statement.setDouble(
+        5,
+        assignment.getPointsPossible());
+
+    statement.setString(
+        6,
+        assignment.getStatus());
+
+    statement.setInt(
+        7,
+        assignment.getAssignmentId());
+
+    statement.executeUpdate();
+    statement.close();
+  }
+
+  /**
+   * Deletes an assignment from the database.
+   */
+  public void delete(int assignmentId)
+      throws SQLException {
+
+    String sql =
+        "DELETE FROM assignments "
+            + "WHERE assignment_id = ?";
+
+    PreparedStatement statement =
+        connection.prepareStatement(sql);
+
+    statement.setInt(1, assignmentId);
+
+    statement.executeUpdate();
+    statement.close();
+  }
 }
