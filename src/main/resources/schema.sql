@@ -3,7 +3,15 @@
 -- references it.
 
 -- Slice 1: Accounts (Bay)
--- users table goes here.
+
+-- One row per user. Role is either STUDENT or TEACHER.
+-- Username is unique so two people can't register the same name.
+CREATE TABLE IF NOT EXISTS users (
+                                     user_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                                     username  TEXT    NOT NULL UNIQUE,
+                                     password  TEXT    NOT NULL,
+                                     role      TEXT    NOT NULL
+);
 
 -- Slice 2: Courses & Enrollment (Ayoung)
 
