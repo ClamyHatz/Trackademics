@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles the database work for assignments.
@@ -53,10 +55,12 @@ public class AssignmentDao {
 
     statement.executeUpdate();
 
-    ResultSet keys = statement.getGeneratedKeys();
+    ResultSet keys =
+        statement.getGeneratedKeys();
 
     if (keys.next()) {
-      assignment.setAssignmentId(keys.getInt(1));
+      assignment.setAssignmentId(
+          keys.getInt(1));
     }
 
     keys.close();
@@ -119,5 +123,68 @@ public class AssignmentDao {
     statement.close();
 
     return assignment;
+  }
+
+  /**
+   * Gets every assignment from the database.
+   */
+  public List<Assignment> findAll()
+      throws SQLException {
+
+    String sql =
+        "SELECT * FROM assignments "
+            + "ORDER BY due_date";
+
+    Statement statement =
+        connection.createStatement();
+
+    ResultSet result =
+        statement.executeQuery(sql);
+
+    List<Assignment> assignments =
+        new ArrayList<>();
+
+    while (result.next()) {
+      int assignmentId =
+          result.getInt("assignment_id");
+
+      int classId =
+          result.getInt("class_id");
+
+      String title =
+          result.getString("title");
+
+      String description =
+          result.getString("description");
+
+      String dueDateText =
+          result.getString("due_date");
+
+      double pointsPossible =
+          result.getDouble("points_possible");
+
+      String status =
+          result.getString("status");
+
+      LocalDate dueDate =
+          LocalDate.parse(dueDateText);
+
+      Assignment assignment =
+          new Assignment(
+              assignmentId,
+              classId,
+              title,
+              description,
+              dueDate,
+              pointsPossible,
+              status);
+
+      assignments.add(assignment);
+    }
+
+    result.close();
+    statement.close();
+
+    return assignments;
   }
 }
