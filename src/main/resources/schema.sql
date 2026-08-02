@@ -44,7 +44,18 @@ CREATE TABLE IF NOT EXISTS enrollments (
 -- users(user_id) once the users table lands.
 
 -- Slice 3: Assignments (Estefan)
--- assignments table goes here.
-
+-- One assignment belongs to one class.
+-- The title, due date, and points are required.
+-- The status starts as 'Not Started' when one is not provided.
+CREATE TABLE IF NOT EXISTS assignments (
+                                           assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                           class_id INTEGER NOT NULL,
+                                           title TEXT NOT NULL,
+                                           description TEXT,
+                                           due_date TEXT NOT NULL,
+                                           points_possible REAL NOT NULL,
+                                           status TEXT NOT NULL DEFAULT 'Not Started',
+                                           FOREIGN KEY (class_id) REFERENCES classes(class_id)
+    );
 -- Slice 4: Grades & Statistics (Lily)
 -- grades table goes here.
