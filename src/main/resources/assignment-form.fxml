@@ -54,6 +54,9 @@
     <Button text="Save Assignment"
       onAction="#saveAssignment" />
 
+    <Button text="Back to Assignments"
+      onAction="#goBackToAssignments" />
+
   </HBox>
 
   <Label fx:id="messageLabel" />

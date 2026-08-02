@@ -8,6 +8,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 /**
  * @description: Controls the form for adding an assignment.
@@ -15,7 +16,9 @@ import javafx.scene.control.TextField;
  * @version 0.1.0
  * @since 8/2/2026
  */
-public class AssignmentFormController {
+public class AssignmentFormController implements StageAware {
+
+  private Stage stage;
 
   @FXML
   private TextField classIdField;
@@ -37,6 +40,14 @@ public class AssignmentFormController {
 
   @FXML
   private Label messageLabel;
+
+  /**
+   * Gives the controller the main window.
+   */
+  @Override
+  public void setStage(Stage stage) {
+    this.stage = stage;
+  }
 
   /**
    * Sets up the status choices.
@@ -122,6 +133,17 @@ public class AssignmentFormController {
 
       exception.printStackTrace();
     }
+  }
+
+  /**
+   * Goes back to the assignment table.
+   */
+  @FXML
+  private void goBackToAssignments() {
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.ASSIGNMENTS,
+            stage));
   }
 
   /**
