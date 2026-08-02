@@ -21,6 +21,7 @@ import javafx.stage.Stage;
  * navigation to other scenes.
  *
  * @author Bay Shahryar
+ * @author Estefan Vicencio
  * @version 0.1.0
  * @since 7/28/26
  */
@@ -32,9 +33,9 @@ public class SceneFactory {
     /**
      * Creates the Scene for the requested scene type.
      *
-     * @param type  the scene to build
-     * @param stage the primary Stage, handed to the controller if it is StageAware
-     * @return the built Scene, ready for the caller to install with setScene
+     * @param type the scene to build
+     * @param stage the primary Stage
+     * @return the scene that was created
      */
     public static Scene create(SceneType type, Stage stage) {
         return switch (type) {
@@ -44,6 +45,7 @@ public class SceneFactory {
             case COURSES -> buildCoursesScene(stage);
             case ENROLLMENT -> buildEnrollmentScene(stage);
             case ASSIGNMENTS -> buildAssignmentsScene(stage);
+            case ASSIGNMENT_FORM -> buildAssignmentFormScene(stage);
             case GRADES -> buildGradesScene(stage);
         };
     }
@@ -68,6 +70,10 @@ public class SceneFactory {
         return loadFxml(SceneType.ASSIGNMENTS, stage);
     }
 
+    private static Scene buildAssignmentFormScene(Stage stage) {
+        return loadFxml(SceneType.ASSIGNMENT_FORM, stage);
+    }
+
     private static Scene buildEnrollmentScene(Stage stage) {
         return loadFxml(SceneType.ENROLLMENT, stage);
     }
@@ -77,12 +83,11 @@ public class SceneFactory {
     }
 
     /**
-     * Loads the FXML file for a scene type, hands the Stage to the controller
-     * if it is StageAware, and wraps the result in a Scene.
+     * Loads the FXML file for a scene type.
      *
-     * @param type  the scene whose FXML should be loaded
-     * @param stage the primary Stage, passed to a StageAware controller
-     * @return a Scene built from the loaded FXML
+     * @param type the scene to load
+     * @param stage the main application window
+     * @return a scene made from the FXML file
      */
     private static Scene loadFxml(SceneType type, Stage stage) {
         String fxmlFile = type.getFxmlFile();
@@ -90,8 +95,8 @@ public class SceneFactory {
 
         if (location == null) {
             throw new IllegalStateException(
-                    "FXML not found for " + type + ": " + fxmlFile
-                            + ". Make sure the file sits under src/main/resources/.");
+                "FXML not found for " + type + ": " + fxmlFile
+                    + ". Make sure the file sits under src/main/resources/.");
         }
 
         try {
@@ -99,13 +104,17 @@ public class SceneFactory {
             Parent root = loader.load();
 
             Object controller = loader.getController();
+
             if (controller instanceof StageAware) {
                 ((StageAware) controller).setStage(stage);
             }
 
             return new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load FXML for " + type, e);
+
+        } catch (IOException exception) {
+            throw new UncheckedIOException(
+                "Failed to load FXML for " + type,
+                exception);
         }
     }
 }
