@@ -105,4 +105,53 @@ public class Assignment {
   public String getStatus() {
     return status;
   }
+
+  /**
+   * Changes the assignment ID.
+   */
+  public void setAssignmentId(int assignmentId) {
+    this.assignmentId = assignmentId;
+  }
+
+  /**
+   * Changes the class ID.
+   */
+  public void setClassId(int classId) {
+    this.classId = classId;
+  }
+
+  /**
+   * Changes the assignment title.
+   */
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  /**
+   * Changes the assignment description.
+   */
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  /**
+   * Changes the assignment due date.
+   */
+  public void setDueDate(LocalDate dueDate) {
+    this.dueDate = dueDate;
+  }
+
+  /**
+   * Changes the points possible.
+   */
+  public void setPointsPossible(double pointsPossible) {
+    this.pointsPossible = pointsPossible;
+  }
+
+  /**
+   * Changes the assignment status.
+   */
+  public void setStatus(String status) {
+    this.status = status;
+  }
 }
