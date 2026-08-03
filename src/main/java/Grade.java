@@ -11,8 +11,8 @@ public class Grade {
     private int gradeId; // PK
     private int enrollmentID; // FK
     private int assignmentID; // FK
-    private int grade;
-    private int weight;
+    private double grade;
+    private double weight;
 
     public Grade(int gradeId, int enrollmentID, int assignmentID, int grade, int weight) {
         this.gradeId = gradeId;
