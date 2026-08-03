@@ -1,5 +1,6 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -79,6 +80,9 @@ public class AssignmentDaoTest {
 
     assignmentDao.insert(assignment);
 
+    assertTrue(
+        assignment.getAssignmentId() > 0);
+
     Assignment savedAssignment =
         assignmentDao.findById(
             assignment.getAssignmentId());
@@ -88,6 +92,10 @@ public class AssignmentDaoTest {
     assertEquals(
         "Java Homework",
         savedAssignment.getTitle());
+
+    assertEquals(
+        "Finish the DAO",
+        savedAssignment.getDescription());
 
     assertEquals(
         100.0,
