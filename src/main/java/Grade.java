@@ -14,7 +14,16 @@ public class Grade {
     private double grade;
     private double weight;
 
-    public Grade(int gradeId, int enrollmentID, int assignmentID, int grade, int weight) {
+    /**
+     * Constructs a grade record with an existing grade identifier.
+     *
+     * @param gradeId the unique identifier for the grade record
+     * @param enrollmentID the identifier of the related enrollment
+     * @param assignmentID the identifier of the related assignment
+     * @param grade the numeric grade earned
+     * @param weight the weight of the grade in an overall calculation
+     */
+    public Grade(int gradeId, int enrollmentID, int assignmentID, double grade, double weight) {
         this.gradeId = gradeId;
         this.enrollmentID = enrollmentID;
         this.assignmentID = assignmentID;
@@ -22,7 +31,17 @@ public class Grade {
         this.weight = weight;
     }
 
-    public Grade(int enrollmentID, int assignmentID, int grade, int weight) {
+    /**
+     * Constructs a new grade record without assigning a grade identifier.
+     * This constructor is useful when the identifier will be generated later,
+     * such as when the record is inserted into a database.
+     *
+     * @param enrollmentID the identifier of the related enrollment
+     * @param assignmentID the identifier of the related assignment
+     * @param grade the numeric grade earned
+     * @param weight the weight of the grade in an overall calculation
+     */
+    public Grade(int enrollmentID, int assignmentID, double grade, double weight) {
         this.enrollmentID = enrollmentID;
         this.assignmentID = assignmentID;
         this.grade = grade;
@@ -34,7 +53,11 @@ public class Grade {
         if (o == null || getClass() != o.getClass()) return false;
 
         Grade grade1 = (Grade) o;
-        return getGradeId() == grade1.getGradeId() && getEnrollmentID() == grade1.getEnrollmentID() && getAssignmentID() == grade1.getAssignmentID() && getGrade() == grade1.getGrade() && getWeight() == grade1.getWeight();
+        return getGradeId() == grade1.getGradeId() &&
+                getEnrollmentID() == grade1.getEnrollmentID() &&
+                getAssignmentID() == grade1.getAssignmentID() &&
+                getGrade() == grade1.getGrade() &&
+                getWeight() == grade1.getWeight();
     }
 
     @Override
@@ -42,8 +65,8 @@ public class Grade {
         int result = getGradeId();
         result = 31 * result + getEnrollmentID();
         result = 31 * result + getAssignmentID();
-        result = 31 * result + getGrade();
-        result = 31 * result + getWeight();
+        result = 31 * result + Double.hashCode(getGrade());
+        result = 31 * result + Double.hashCode(getWeight());
         return result;
     }
 
@@ -82,19 +105,19 @@ public class Grade {
         this.assignmentID = assignmentID;
     }
 
-    public int getGrade() {
+    public double getGrade() {
         return grade;
     }
 
-    public void setGrade(int grade) {
+    public void setGrade(double grade) {
         this.grade = grade;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
