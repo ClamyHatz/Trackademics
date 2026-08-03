@@ -64,8 +64,8 @@ CREATE TABLE If NOT EXISTS grades (
     grade_id INTEGER PRIMARY KEY AUTOINCREMENT,
     enrollment_id INTEGER NOT NULL,
     assignment_id INTEGER NOT NULL,
-    grade INTEGER NOT NULL,
-    weight INTEGER NOT NULL,
+    grade DOUBLE NOT NULL,
+    weight DOUBLE NOT NULL,
     FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id),
     FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id)
 );
