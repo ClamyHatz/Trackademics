@@ -34,7 +34,11 @@ public class Grade {
         if (o == null || getClass() != o.getClass()) return false;
 
         Grade grade1 = (Grade) o;
-        return getGradeId() == grade1.getGradeId() && getEnrollmentID() == grade1.getEnrollmentID() && getAssignmentID() == grade1.getAssignmentID() && getGrade() == grade1.getGrade() && getWeight() == grade1.getWeight();
+        return getGradeId() == grade1.getGradeId() &&
+                getEnrollmentID() == grade1.getEnrollmentID() &&
+                getAssignmentID() == grade1.getAssignmentID() &&
+                getGrade() == grade1.getGrade() &&
+                getWeight() == grade1.getWeight();
     }
 
     @Override
@@ -42,8 +46,8 @@ public class Grade {
         int result = getGradeId();
         result = 31 * result + getEnrollmentID();
         result = 31 * result + getAssignmentID();
-        result = 31 * result + getGrade();
-        result = 31 * result + getWeight();
+        result = 31 * result + Double.hashCode(getGrade());
+        result = 31 * result + Double.hashCode(getWeight());
         return result;
     }
 
@@ -82,22 +86,20 @@ public class Grade {
         this.assignmentID = assignmentID;
     }
 
-    public int getGrade() {
+    public double getGrade() {
         return grade;
     }
 
-    public void setGrade(int grade) {
+    public void setGrade(double grade) {
         this.grade = grade;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
-
-
 
 }
