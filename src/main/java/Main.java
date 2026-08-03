@@ -34,7 +34,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         stage.setTitle(TITLE);
-        stage.setScene(SceneFactory.create(SceneType.LOGIN, stage));
+        stage.setScene(SceneFactory.create(SceneType.GRADES, stage));
         stage.show();
     }
 }
