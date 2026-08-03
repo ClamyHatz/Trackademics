@@ -93,5 +93,17 @@ public class AssignmentDaoTest {
         100.0,
         savedAssignment.getPointsPossible(),
         0.001);
+
+    assertEquals(
+        1,
+        savedAssignment.getClassId());
+
+    assertEquals(
+        LocalDate.of(2026, 8, 10),
+        savedAssignment.getDueDate());
+
+    assertEquals(
+        "Not Started",
+        savedAssignment.getStatus());
   }
 }
