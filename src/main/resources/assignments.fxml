@@ -60,7 +60,8 @@
 
       <HBox spacing="10.0">
 
-        <Button text="Add Assignment"
+        <Button fx:id="addAssignmentButton"
+          text="Add Assignment"
           onAction="#openAssignmentForm" />
 
         <Button text="Edit Assignment"
