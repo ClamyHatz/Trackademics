@@ -66,6 +66,6 @@ CREATE TABLE If NOT EXISTS grades (
     assignment_id INTEGER NOT NULL,
     grade INTEGER NOT NULL,
     weight INTEGER NOT NULL,
-    FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id)
+    FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id),
     FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id)
 )
