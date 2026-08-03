@@ -27,3 +27,9 @@ replay_pid*
 # Gradle
 .gradle/
 build/
+
+# IntelliJ
+.idea/
+
+# Local database
+*.db
