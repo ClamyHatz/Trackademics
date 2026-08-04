@@ -49,6 +49,8 @@ public class UserDao {
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
                     user.setUserId(keys.getInt(1));
+                } else {
+                    throw new SQLException("Insert succeeded but no user id was generated");
                 }
             }
         }
@@ -121,6 +123,9 @@ public class UserDao {
      * @throws SQLException if the update fails
      */
     public boolean update(User user) throws SQLException {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
         String sql = "UPDATE users SET username = ?, password = ?, role = ? WHERE user_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, user.getUsername());

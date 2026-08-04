@@ -45,3 +45,42 @@ id column and closing the connection with `@AfterEach`). The final suite compile
 and all 10 tests pass.
 
 Final tests: `src/test/java/UserDaoTest.java`
+
+
+## AI code review
+
+I ran an AI code review of my UserDao (from PR #32) using ChatGPT, in addition
+to Estefan's review. I asked it to review the DAO for bugs, resource leaks,
+security issues, error handling, and style. It returned 13 findings. Here's my
+adjudication:
+
+**Accepted:**
+- Insert with no generated key: it flagged that insert() silently continued if
+  no id came back. I added a thrown SQLException so a failed id generation isn't
+  hidden.
+- Null user in update(): a null argument would throw an unclear
+  NullPointerException. I added a null check that throws a clear
+  IllegalArgumentException.
+
+**Noted but not changed:**
+- Case-insensitive username lookup: Left as is since our app treats usernames as
+  exact, but may be worth revisiting.
+
+**Rejected as out of scope:**
+- Password hashing (BCrypt): the auth extras are on our
+  WILL NOT DO list and the project stores plain passwords by design.
+- Batch operations, audit fields, optimistic locking, transactions: enterprise
+  features are a bit out of this project's scope.
+- Password length validation: belongs in the AuthService validation layer, not
+  the DAO.
+
+**Rejected as not an issue:**
+- "DAO doesn't close the connection": this is intentional because the DAO takes a
+  connection so it can be tested with H2, and the caller must close it.
+- "SQL injection risk in findAll()": the tool admitted the query is safe, it was
+  speculating about hypothetical changes.
+- Wrapping SQLException in a custom unchecked exception: a style choice, but
+  throwing SQLException keeps my DAO consistent with the rest of the team's DAOs.
+
+Most findings were out of scope or misread the intentional design. I accepted the
+two small fixes that genuinely improved the code.
