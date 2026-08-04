@@ -82,7 +82,7 @@ public class GradeDao {
     public List<Grade> findAll() throws SQLException {
         String sql = "SELECT grade_id, enrollment_id, assignment_id, grade, weight "
                 + "FROM grades "
-                + "ORDER BY grade_id = ?";
+                + "ORDER BY grade_id";
 
         List<Grade> grades = new ArrayList<>();
 
@@ -102,7 +102,7 @@ public class GradeDao {
      */
     public List<Grade> findByEnrollmentId(int enrollmentId) throws SQLException {
 
-        String sql = "SELECT grade_id, enrollment_id, assignment_id, grade, weight"
+        String sql = "SELECT grade_id, enrollment_id, assignment_id, grade, weight "
                 + "FROM grades "
                 + "WHERE enrollment_id = ? "
                 + "ORDER BY grade_id";
@@ -189,7 +189,6 @@ public class GradeDao {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, gradeId);
-            statement.executeUpdate();
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected == 0) {
