@@ -57,9 +57,8 @@ public class AssignmentController {
    * Loads assignments from the database.
    */
   private void loadAssignments() {
-    try {
-      Connection connection =
-          DatabaseConnection.getConnection();
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
@@ -73,7 +72,6 @@ public class AssignmentController {
 
       assignmentTable.setItems(assignments);
 
-      connection.close();
     } catch (SQLException exception) {
       System.out.println(
           "Could not load assignments.");
