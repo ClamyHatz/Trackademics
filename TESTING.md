@@ -1,0 +1,46 @@
+# Testing — Accounts Slice (Bay Shahryar)
+
+## UserDao tests
+
+The UserDao tests run against an in-memory H2 database. A blank users table is
+created before each test with `@BeforeEach`, and the connection is closed after
+each test with `@AfterEach`. The test table uses H2 syntax based on the SQLite
+users table in schema.sql.
+
+Tests covered: insert and read back, find by username, find by id, update,
+delete, duplicate username rejected, and unknown lookups returning null without
+crashing.
+
+## AI-drafted, then curated
+
+I used ChatGPT to draft the test class, then evaluated and fixed it.
+
+**Prompt:** I gave it my User class fields and constructor, my UserDao method
+names, the users table columns, and asked for a JUnit 5 test class using an
+in-memory H2 database that covers insert/read back, find by username, find by
+id, update, delete, duplicate username rejected, and unknown username returns
+null.
+
+**What it produced:** A full JUnit 5 test class with a `@BeforeEach` setup that
+created an H2 database and the users table, plus about 12 test methods.
+
+**What it got right:** It used `@BeforeEach` to build a blank database per test,
+which is the right pattern for isolated tests. It used correct H2 syntax
+(`AUTO_INCREMENT`, not SQLite's `AUTOINCREMENT`). The duplicate-username test
+correctly expected a SQLException, and it covered the null-return cases from my
+test plan.
+
+**What it got wrong:** It invented a package (`com.example.dao`) and a `User`
+import, but there are no packages in my project, so I removed both. It assumed
+`insert` returned an `int` id, but my `insert` returns the `User` with its id
+set, so I fixed every test to use the returned User's `getUserId()`. It also
+used generic roles ("USER", "ADMIN") instead of my STUDENT and TEACHER roles.
+
+**What I changed:** Removed the invented package/imports, fixed the `insert`
+return type usage, switched the roles to STUDENT/TEACHER, added a `DROP TABLE IF
+EXISTS` for safety, and renamed the tests to describe what they check. After the
+AI draft, I also aligned the H2 setup to match the team's pattern (identity-style
+id column and closing the connection with `@AfterEach`). The final suite compiles
+and all 10 tests pass.
+
+Final tests: `src/test/java/UserDaoTest.java`
