@@ -5,9 +5,11 @@
 <?import javafx.geometry.Insets?>
 
 <!--
-  Placeholder for the enrollment scene.
-  Later this becomes the class on the left, its roster on the right, with
-  enroll and drop in between. For now it's just here so ENROLLMENT loads.
+  Placeholder for the courses scene.
+  Eventually this is a table of all the classes with add, edit and delete
+  buttons, hooked up to an ObservableList so it redraws itself whenever
+  ClassDAO writes something. For now it just gives the scene factory
+  something to load for COURSES.
 -->
 <VBox alignment="CENTER" spacing="12.0"
       xmlns="http://javafx.com/javafx"
@@ -16,7 +18,7 @@
         <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
     </padding>
     <children>
-        <Label text="Enrollment"/>
-        <Label text="Class info and student roster go here."/>
+        <Label text="Courses"/>
+        <Label text="Class list and management controls go here."/>
     </children>
 </VBox>

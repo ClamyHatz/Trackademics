@@ -42,11 +42,14 @@ public class DatabaseConnection {
     /**
      * Runs schema.sql against the given connection.
      *
+     *  Comments are stripped before splitting, otherwise the leftover comments at
+     *  the end of the file get sent to the database as if they were a statement.
+     *
      * @param connection an open connection to apply the schema to
      * @throws SQLException if the schema cannot be applied
      */
     private static void applySchema(Connection connection) throws SQLException {
-        String sql = readSchema();
+        String sql = readSchema().replaceAll("--[^\n]*", "");
         try (Statement statement = connection.createStatement()) {
             for (String command : sql.split(";")) {
                 if (!command.isBlank()) {
