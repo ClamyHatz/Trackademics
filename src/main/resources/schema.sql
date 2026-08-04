@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS classes (
                                        title       TEXT    NOT NULL,
                                        term        TEXT    NOT NULL,
                                        teacher_id  INTEGER NOT NULL,
+                                        FOREIGN KEY (teacher_id) REFERENCES users(user_id),
                                        UNIQUE (class_code, term)
     );
 
@@ -37,11 +38,10 @@ CREATE TABLE IF NOT EXISTS enrollments (
                                            enrolled_on   TEXT    NOT NULL,
                                            status        TEXT    NOT NULL DEFAULT 'active',
                                            FOREIGN KEY (class_id) REFERENCES classes(class_id),
-    UNIQUE (class_id, student_id)
+                                           FOREIGN KEY (student_id) REFERENCES users(user_id),
+                                           UNIQUE (class_id, student_id)
     );
 
--- TODO: add FK from classes.teacher_id and enrollments.student_id to
--- users(user_id) once the users table lands.
 
 -- Slice 3: Assignments (Estefan)
 -- One assignment belongs to one class.
@@ -58,4 +58,14 @@ CREATE TABLE IF NOT EXISTS assignments (
                                            FOREIGN KEY (class_id) REFERENCES classes(class_id)
     );
 -- Slice 4: Grades & Statistics (Lily)
--- grades table goes here.
+-- one grade belongs to one assignment
+-- enrollment id gives us both student and class id
+CREATE TABLE If NOT EXISTS grades (
+    grade_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    enrollment_id INTEGER NOT NULL,
+    assignment_id INTEGER NOT NULL,
+    grade DOUBLE NOT NULL,
+    weight DOUBLE NOT NULL,
+    FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id),
+    FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id)
+);
