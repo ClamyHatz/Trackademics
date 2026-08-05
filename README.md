@@ -1,4 +1,4 @@
-git git <!--
+<!--
 CST 338 Project 2 — README template.
 Copy this file into the ROOT of your team's repository as README.md and keep it current.
 This README is your project dashboard: it is the first thing the instructor reads when
@@ -21,8 +21,8 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 |-------|-------|-----------------|--------|------------|-------|--------------------|-------------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 #20 | bay/user-dao-impl | #2 #25 #32 #35 | Notifications/alerts | in-progress |
 | 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment | | Data binding (ObservableList / Property) | planned     |
-| 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments | #5 | TableView populated with live data | planned     |
-| 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 | lily/grade-viewer | #28 #29 #33 #37 | TableView / ListView populated with live data | planned     |
+| 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments | #5 #26 #27 #31 | TableView populated with live data | planned     |
+| 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 #38 | lily/grade-viewer | #28 #29 #33 #37 | TableView / ListView populated with live data | planned     |
 
 _Status values: planned · in-progress · complete_
 
