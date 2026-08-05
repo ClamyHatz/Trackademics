@@ -1,4 +1,4 @@
-<!--
+git git <!--
 CST 338 Project 2 — README template.
 Copy this file into the ROOT of your team's repository as README.md and keep it current.
 This README is your project dashboard: it is the first thing the instructor reads when
