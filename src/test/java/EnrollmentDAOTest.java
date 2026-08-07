@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -20,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Enrollments point at a class and a user, so each test needs those rows to
  * exist first. BeforeEach makes a teacher, a student and a class to hang the
  * enrollments off of, and AfterEach clears everything out so a failed assert
- * doesn't leave rows behind for the next run.
- *  *
+ * doesn't leave rows behind.
+ *
  * @author Ayoung Choi
  * @version 0.1.0
  * @since 8/6/26
@@ -35,6 +36,7 @@ public class EnrollmentDAOTest {
     private int teacherId;
     private int studentId;
     private int classId;
+    private Integer extraClassId;
 
     @BeforeEach
     void createTestRows() throws SQLException {
@@ -48,6 +50,13 @@ public class EnrollmentDAOTest {
 
     @AfterEach
     void removeTestRows() throws SQLException {
+        if (extraClassId != null) {
+            for (Enrollment enrollment : dao.findByClass(extraClassId)) {
+                dao.delete(enrollment.getEnrollmentId());
+            }
+            classDao.delete(extraClassId);
+            extraClassId = null;
+        }
         for (Enrollment enrollment : dao.findByClass(classId)) {
             dao.delete(enrollment.getEnrollmentId());
         }
@@ -86,9 +95,10 @@ public class EnrollmentDAOTest {
     void findByClassOnlyReturnsThatClass() throws SQLException {
         Course other = new Course("TEST102", "Other Course", "Summer 2026", teacherId);
         classDao.insert(other);
+        extraClassId = other.getClassId();
 
         Enrollment mine = new Enrollment(classId, studentId);
-        Enrollment theirs = new Enrollment(other.getClassId(), studentId);
+        Enrollment theirs = new Enrollment(extraClassId, studentId);
         dao.insert(mine);
         dao.insert(theirs);
 
@@ -96,9 +106,6 @@ public class EnrollmentDAOTest {
 
         assertEquals(1, found.size());
         assertEquals(mine.getEnrollmentId(), found.get(0).getEnrollmentId());
-
-        dao.delete(theirs.getEnrollmentId());
-        classDao.delete(other.getClassId());
     }
 
     @Test
@@ -135,7 +142,7 @@ public class EnrollmentDAOTest {
             statement.setString(3, role);
             statement.executeUpdate();
 
-            try (var keys = statement.getGeneratedKeys()) {
+            try (ResultSet keys = statement.getGeneratedKeys()) {
                 keys.next();
                 return keys.getInt(1);
             }
