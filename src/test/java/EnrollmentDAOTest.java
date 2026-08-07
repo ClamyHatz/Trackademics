@@ -88,8 +88,7 @@ public class EnrollmentDAOTest {
         Enrollment found = dao.findById(enrollment.getEnrollmentId());
 
         assertNotNull(found);
-        assertEquals(Enrollment.DROPPED, found.getStatus());
-    }
+        assertEquals(Enrollment.Status.DROPPED, found.getStatus());    }
 
     @Test
     void findByClassOnlyReturnsThatClass() throws SQLException {

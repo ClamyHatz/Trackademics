@@ -15,7 +15,7 @@ import java.util.List;
  * than a delete so the row sticks around.
  *
  * @author Ayoung Choi
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/6/26
  *
  */
@@ -40,7 +40,7 @@ public class EnrollmentDAO {
             statement.setInt(1, enrollment.getClassId());
             statement.setInt(2, enrollment.getStudentId());
             statement.setString(3, enrollment.getEnrolledOn().toString());
-            statement.setString(4, enrollment.getStatus());
+            statement.setString(4, enrollment.getStatus().getValue());
             statement.executeUpdate();
 
             try (ResultSet keys = statement.getGeneratedKeys()) {
@@ -159,7 +159,7 @@ public class EnrollmentDAO {
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, Enrollment.DROPPED);
+            statement.setString(1, Enrollment.Status.DROPPED.getValue());
             statement.setInt(2, enrollmentId);
             statement.executeUpdate();
         }
@@ -181,16 +181,15 @@ public class EnrollmentDAO {
             statement.setInt(1, enrollment.getClassId());
             statement.setInt(2, enrollment.getStudentId());
             statement.setString(3, enrollment.getEnrolledOn().toString());
-            statement.setString(4, enrollment.getStatus());
+            statement.setString(4, enrollment.getStatus().getValue());
             statement.setInt(5, enrollment.getEnrollmentId());
             statement.executeUpdate();
         }
     }
 
     /**
-     * Deletes an enrollment for real.
-     * Dropping a class should use drop()
-     * this is here for cleanup.
+     * Deletes an enrollment for real. Dropping a class should use drop()
+     * instead; this is here for cleanup.
      *
      * @param enrollmentId the id of the enrollment to delete
      * @throws SQLException if the delete fails
@@ -219,6 +218,6 @@ public class EnrollmentDAO {
                 results.getInt("class_id"),
                 results.getInt("student_id"),
                 LocalDate.parse(results.getString("enrolled_on")),
-                results.getString("status"));
+                Enrollment.Status.fromValue(results.getString("status")));
     }
 }

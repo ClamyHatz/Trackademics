@@ -3,26 +3,57 @@ import java.time.LocalDate;
 /**
  * One student in one class.
  *
- * Matches a row of the enrollments table. Status is either 'active' or
- * 'dropped' since dropping keeps the row around instead of deleting it.
+ * Matches a row of the enrollments table. Status is either active or
+ * dropped since dropping keeps the row around instead of deleting it.
  *
  * @author Ayoung Choi
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/6/26
  */
 public class Enrollment {
 
-    /** Status for an enrollment the student is still in. */
-    public static final String ACTIVE = "active";
+    /** Whether the student is still in the class or has dropped it. */
+    public enum Status {
+        ACTIVE("active"),
+        DROPPED("dropped");
 
-    /** Status for one they dropped. */
-    public static final String DROPPED = "dropped";
+        private final String value;
+
+        Status(String value) {
+            this.value = value;
+        }
+
+        /**
+         * The string that goes in the status column.
+         *
+         * @return the database value for this status
+         */
+        public String getValue() {
+            return value;
+        }
+
+        /**
+         * Turns a status column value back into a Status.
+         *
+         * @param value the string from the database
+         * @return the matching status
+         * @throws IllegalArgumentException if the value isn't one we know
+         */
+        public static Status fromValue(String value) {
+            for (Status status : values()) {
+                if (status.value.equals(value)) {
+                    return status;
+                }
+            }
+            throw new IllegalArgumentException("Unknown enrollment status: " + value);
+        }
+    }
 
     private int enrollmentId;
     private int classId;
     private int studentId;
     private LocalDate enrolledOn;
-    private String status;
+    private Status status;
 
     /**
      * Builds an enrollment that already has an id from the database.
@@ -31,10 +62,10 @@ public class Enrollment {
      * @param classId the class being enrolled in
      * @param studentId the student enrolling
      * @param enrolledOn the date they enrolled
-     * @param status 'active' or 'dropped'
+     * @param status active or dropped
      */
     public Enrollment(int enrollmentId, int classId, int studentId,
-                      LocalDate enrolledOn, String status) {
+                      LocalDate enrolledOn, Status status) {
         this.enrollmentId = enrollmentId;
         this.classId = classId;
         this.studentId = studentId;
@@ -50,16 +81,16 @@ public class Enrollment {
      * @param studentId the student enrolling
      */
     public Enrollment(int classId, int studentId) {
-        this(0, classId, studentId, LocalDate.now(), ACTIVE);
+        this(0, classId, studentId, LocalDate.now(), Status.ACTIVE);
     }
 
     /**
      * Checks if the student is still in the class.
      *
-     * @return true if the status is 'active'
+     * @return true if the status is active
      */
     public boolean isActive() {
-        return ACTIVE.equals(status);
+        return status == Status.ACTIVE;
     }
 
 
@@ -96,11 +127,11 @@ public class Enrollment {
         this.enrolledOn = enrolledOn;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 }
