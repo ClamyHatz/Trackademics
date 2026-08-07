@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @version 0.1.0
  * @since 8/6/26
  */
+
 public class EnrollmentDAOTest {
 
     private final EnrollmentDAO dao = new EnrollmentDAO();
