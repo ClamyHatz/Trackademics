@@ -19,14 +19,8 @@ IT HAS ALREADY BEEN USED SO DON'T USE IT.
 
 public class DataMaker {
 
-    private static void addDemoData(
-            Connection connection,
-            GradeDao gradeDao,
-            UserDao userDao,
-            ClassDAO classDao,
-            AssignmentDao assignmentDao
-
-    ) throws SQLException {
+    private static void addDemoData(GradeDao gradeDao, UserDao userDao, ClassDAO classDao,
+            AssignmentDao assignmentDao, EnrollmentDAO enrollmentDao) throws SQLException {
 
         User teacher1 = new User(0, "exampleTeacher", "password", "TEACHER");
         userDao.insert(teacher1);
@@ -37,92 +31,18 @@ public class DataMaker {
         Course course1 = new Course(0, "101", "Programming 101", "Summer 2026", teacher1.getUserId());
         classDao.insert(course1);
 
-        int enrollmentId = insertEnrollment(
-                connection,
-                course1.getClassId(),
-                student1.getUserId()
-        );
-
+        Enrollment enrollment = new Enrollment(course1.getClassId(), student1.getUserId());
+        enrollmentDao.insert(enrollment);
 
         Assignment assignment1 = new Assignment(0, course1.getClassId(), "A01, Hello World",
                 "Goal: printing 'Hello World'", LocalDate.of(2026, 8, 14),
                 10, "ACTIVE"
                 );
-
         assignmentDao.insert(assignment1);
 
-        Grade grade = new Grade(
-                enrollmentId,
-                assignment1.getAssignmentId(),
-                92.5,
-                0.20
-        );
-
+        Grade grade = new Grade(enrollment.getEnrollmentId(), assignment1.getAssignmentId(), 92.5, 0.20);
         gradeDao.insert(grade);
 
-    }
-
-    private static int insertEnrollment(
-            Connection connection,
-            int classId,
-            int studentId
-
-    ) throws SQLException {
-
-        String sql = """
-                INSERT INTO enrollments
-                    (class_id, student_id, enrolled_on, status)
-                VALUES (?, ?, ?, ?)
-                """;
-
-        try (PreparedStatement statement = connection.prepareStatement(
-                sql,
-                Statement.RETURN_GENERATED_KEYS
-        )) {
-            statement.setInt(1, classId);
-            statement.setInt(2, studentId);
-            statement.setString(3, "2026-08-05");
-            statement.setString(4, "active");
-            statement.executeUpdate();
-
-            return getGeneratedId(statement, "enrollment");
-        }
-    }
-
-    private static int getGeneratedId(
-            PreparedStatement statement,
-            String recordType
-
-    ) throws SQLException {
-
-        try (ResultSet keys = statement.getGeneratedKeys()) {
-            if (keys.next()) {
-                return keys.getInt(1);
-            }
-        }
-
-        throw new SQLException(
-                "No generated ID was returned for the " + recordType
-        );
-    }
-
-    public static List<Grade> findAllEnrollments() throws SQLException {
-        String sql = "SELECT class_id, student_id, enrolled_on, status "
-                + "FROM enrollments "
-                + "ORDER BY enrollment_id";
-
-        List<Grade> grades = new ArrayList<>();
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet results = statement.executeQuery()) {
-
-            while (results.next()) {
-                grades.add(makeGrade(result));
-            }
-        }
-
-        return grades;
     }
 
     public static void main(String[] args) {
@@ -134,12 +54,13 @@ public class DataMaker {
             UserDao userDao = new UserDao(connection);
             ClassDAO classDAO = new ClassDAO();
             AssignmentDao assignmentDao = new AssignmentDao(connection);
+            EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
 
-            addDemoData(connection, gradeDao, userDao, classDAO, assignmentDao);
+            addDemoData(gradeDao, userDao, classDAO, assignmentDao, enrollmentDAO);
 
             System.out.println(userDao.findAll());
             System.out.println(classDAO.findAll());
-            System.out.println(findAllEnrollments());
+            System.out.println(enrollmentDAO.findAll());
             System.out.println(assignmentDao.findAll());
             System.out.println(gradeDao.findAll());
 
