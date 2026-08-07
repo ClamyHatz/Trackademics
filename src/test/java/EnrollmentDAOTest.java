@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * exist first. BeforeEach makes a teacher, a student and a class to hang the
  * enrollments off of, and AfterEach clears everything out so a failed assert
  * doesn't leave rows behind for the next run.
- *
+ *  *
  * @author Ayoung Choi
  * @version 0.1.0
  * @since 8/6/26

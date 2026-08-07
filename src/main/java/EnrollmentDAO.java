@@ -188,8 +188,9 @@ public class EnrollmentDAO {
     }
 
     /**
-     * Deletes an enrollment for real. Dropping a class should use drop()
-     * instead; this is here for cleanup.
+     * Deletes an enrollment for real.
+     * Dropping a class should use drop()
+     * this is here for cleanup.
      *
      * @param enrollmentId the id of the enrollment to delete
      * @throws SQLException if the delete fails
