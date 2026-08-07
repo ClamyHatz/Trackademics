@@ -35,4 +35,4 @@ build/
 *.iml
 
 # SQLite database files
-*.db
+#*.db

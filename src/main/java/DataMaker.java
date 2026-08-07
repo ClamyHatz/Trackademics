@@ -173,7 +173,8 @@ public class DataMaker {
             AssignmentDao assignmentDao = new AssignmentDao(connection);
             EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
 
-            addDemoData(gradeDao, userDao, classDAO, assignmentDao, enrollmentDAO);
+            //The line below is commented so it cannot be run if accidentally clicked
+            //addDemoData(gradeDao, userDao, classDAO, assignmentDao, enrollmentDAO);
 
             System.out.println("Users:");
             System.out.println(userDao.findAll());
