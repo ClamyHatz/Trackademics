@@ -14,6 +14,7 @@ public enum SceneType {
     LOGIN("login.fxml"),
     REGISTER("register.fxml"),
     DASHBOARD("dashboard.fxml"),
+    HOME("home.fxml"),
     COURSES("courses.fxml"),
     ENROLLMENT("enrollment.fxml"),
     ASSIGNMENTS("assignments.fxml"),

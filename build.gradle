@@ -44,6 +44,16 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
+// Pass JavaFX module-path and add-modules to the run task
+run {
+    doFirst {
+        jvmArgs = [
+                '--module-path', configurations.runtimeClasspath.asPath,
+                '--add-modules', 'javafx.controls,javafx.fxml'
+        ]
+    }
+}
+
 test {
     useJUnitPlatform()
     failOnNoDiscoveredTests = false

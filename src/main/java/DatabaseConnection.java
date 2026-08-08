@@ -1,3 +1,4 @@
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -13,9 +14,9 @@ import java.sql.Statement;
  * CREATE TABLE IF NOT EXISTS, running it again is harmless.
  *
  * @author Ayoung Choi
- * @author Estefan Vicencio
  * @version 0.1.0
  * @since 7/31/26
+ *
  */
 public class DatabaseConnection {
 
@@ -23,55 +24,37 @@ public class DatabaseConnection {
     private static boolean schemaLoaded = false;
 
     /**
-     * Opens a connection to the database and creates the tables if needed.
+     * Opens a connection to the database, creating the tables on first use.
      *
-     * @return an open database connection
+     * @return an open Connection the caller is responsible for closing
      * @throws SQLException if the database cannot be opened
      */
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(URL);
-
         if (!schemaLoaded) {
             applySchema(connection);
             schemaLoaded = true;
         }
-
         return connection;
     }
 
+
     /**
-     * Runs each command from schema.sql.
+     * Runs schema.sql against the given connection.
      *
-     * @param connection the open database connection
-     * @throws SQLException if a command cannot run
+     *  Comments are stripped before splitting, otherwise the leftover comments at
+     *  the end of the file get sent to the database as if they were a statement.
+     *
+     * @param connection an open connection to apply the schema to
+     * @throws SQLException if the schema cannot be applied
      */
-    private static void applySchema(Connection connection)
-        throws SQLException {
-
-        String sql = readSchema();
-
-        StringBuilder sqlWithoutComments =
-            new StringBuilder();
-
-        for (String line : sql.split("\n")) {
-            if (!line.trim().startsWith("--")) {
-                sqlWithoutComments
-                    .append(line)
-                    .append("\n");
-            }
-        }
-
-        for (String command :
-            sqlWithoutComments.toString().split(";")) {
-
-            String cleanCommand = command.trim();
-
-            if (!cleanCommand.isEmpty()) {
-                Statement statement =
-                    connection.createStatement();
-
-                statement.executeUpdate(cleanCommand);
-                statement.close();
+    private static void applySchema(Connection connection) throws SQLException {
+        String sql = readSchema().replaceAll("--[^\n]*", "");
+        try (Statement statement = connection.createStatement()) {
+            for (String command : sql.split(";")) {
+                if (!command.isBlank()) {
+                    statement.execute(command);
+                }
             }
         }
     }
@@ -79,27 +62,16 @@ public class DatabaseConnection {
     /**
      * Reads schema.sql from the resources folder.
      *
-     * @return the text inside schema.sql
+     * @return the contents of schema.sql
      */
     private static String readSchema() {
-        try (InputStream input =
-            DatabaseConnection.class
-                .getResourceAsStream(
-                    "/schema.sql")) {
-
-            if (input == null) {
-                throw new IllegalStateException(
-                    "schema.sql not found in resources");
+        try (InputStream in = DatabaseConnection.class.getResourceAsStream("/schema.sql")) {
+            if (in == null) {
+                throw new IllegalStateException("schema.sql not found in resources");
             }
-
-            return new String(
-                input.readAllBytes(),
-                StandardCharsets.UTF_8);
-
-        } catch (Exception exception) {
-            throw new IllegalStateException(
-                "Failed to read schema.sql",
-                exception);
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read schema.sql", e);
         }
     }
 }
