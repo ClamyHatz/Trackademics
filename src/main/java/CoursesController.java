@@ -145,7 +145,7 @@ public class CoursesController implements StageAware {
 
     @FXML
     private void handleBack() {
-        stage.setScene(SceneFactory.create(SceneType.DASHBOARD, stage));
+        stage.setScene(SceneFactory.create(SceneType.HOME, stage));
     }
 
     /**
