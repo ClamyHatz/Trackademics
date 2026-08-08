@@ -37,7 +37,8 @@
                 <Separator orientation="VERTICAL" prefHeight="28.0"/>
                 <VBox spacing="2.0">
                     <!-- Grades Label -->
-                    <Label text="Grades"
+                    <Label fx:id= "topGradesLabel"
+                            text="Grades"
                            style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17263a;"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
@@ -45,10 +46,9 @@
                        text="Ready"
                        style="-fx-font-size: 12px; -fx-text-fill: #637286;"/>
             </HBox>
-
-            <!-- Selection box that you choose what you are viewing by -->
             <HBox alignment="CENTER_LEFT" spacing="12.0">
-                <Label text="View by" style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
+                <!-- Selection box that you choose what you are viewing by -->
+                <Label fx:id="viewByComboBoxLabel" text="View by" style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
                 <ComboBox fx:id="viewByComboBox"
                           prefWidth="170.0"
                           onAction="#handleViewByChanged"/>
@@ -59,7 +59,18 @@
                 <ComboBox fx:id="selectionComboBox"
                           prefWidth="260.0"
                           onAction="#handleSelectionChanged"/>
-
+                <!-- Selection box that you choose which class you are viewing by -->
+                <Label fx:id="classSelectionPromptLabel"
+                       text="Choose Class"
+                       style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
+                <ComboBox fx:id="classSelectionComboBox"
+                          prefWidth="260.0"
+                          onAction="#handleSelectionChanged"/>
+                <!-- Selection box that you choose what you are viewing by (UserType)-->
+                <Label text="User Type:" style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
+                <ComboBox fx:id="userTypeComboBox"
+                          prefWidth="170.0"
+                          onAction="#handleViewByUserType"/>
                 <Region HBox.hgrow="ALWAYS"/>
             </HBox>
         </VBox>
@@ -72,6 +83,10 @@
             </padding>
 
             <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <!-- Over All Grade -->
+                <Label fx:id="overallGradeLabel"
+                       text="Overall Grade: —"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;" />
                 <!-- Table Title -->
                 <HBox alignment="CENTER_LEFT">
                     <Label fx:id="tableTitleLabel"
@@ -87,10 +102,9 @@
                     <columns>
                         <TableColumn fx:id="assignmentColumn" text="Assignment" minWidth="150.0" prefWidth="190.0"/>
                         <TableColumn fx:id="studentColumn" text="Student Name" minWidth="150.0" prefWidth="190.0"/>
-                        <TableColumn fx:id="studentIdColumn" text="Student ID" minWidth="95.0" prefWidth="105.0"/>
                         <TableColumn fx:id="dueDateColumn" text="Due" minWidth="95.0" prefWidth="110.0"/>
                         <TableColumn fx:id="scoreColumn" text="Score" minWidth="105.0" prefWidth="120.0"/>
-                        <TableColumn fx:id="weightColumn" text="Percent" minWidth="90.0" prefWidth="100.0"/>
+                        <TableColumn fx:id="weightColumn" text="Class %" minWidth="90.0" prefWidth="100.0"/>
                     </columns>
                 </TableView>
             </VBox>
