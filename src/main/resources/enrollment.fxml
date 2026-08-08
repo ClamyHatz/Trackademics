@@ -11,8 +11,9 @@
 <?import javafx.geometry.Insets?>
 
 <!--
-  The enrollment scene. Pick a class on the left and its roster shows up on
-  the right. Both lists are ObservableLists so they redraw themselves after
+  The enrollment scene.
+  Pick a class on the left and its roster shows up on the right.
+  Both lists are ObservableLists so they redraw themselves after
   an enroll or a drop.
 -->
 <VBox spacing="12.0"
