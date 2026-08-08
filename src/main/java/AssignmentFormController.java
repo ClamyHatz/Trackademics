@@ -60,11 +60,9 @@ public class AssignmentFormController implements StageAware {
   public void initialize() {
     statusComboBox.setItems(
         FXCollections.observableArrayList(
-            "Not Started",
-            "In Progress",
-            "Completed"));
+            "ACTIVE"));
 
-    statusComboBox.setValue("Not Started");
+    statusComboBox.setValue("ACTIVE");
 
     if (assignmentToEdit != null) {
       loadAssignment();
@@ -96,7 +94,8 @@ public class AssignmentFormController implements StageAware {
     String title = titleField.getText();
     LocalDate dueDate = dueDatePicker.getValue();
 
-    AssignmentService service = new AssignmentService();
+    AssignmentService service =
+        new AssignmentService();
 
     String validationMessage =
         service.checkAssignment(
@@ -110,16 +109,18 @@ public class AssignmentFormController implements StageAware {
       return;
     }
 
-    String description = descriptionArea.getText();
-    String status = statusComboBox.getValue();
+    String description =
+        descriptionArea.getText();
+
+    String status =
+        statusComboBox.getValue();
 
     if (status == null) {
-      status = "Not Started";
+      status = "ACTIVE";
     }
 
-    try {
-      Connection connection =
-          DatabaseConnection.getConnection();
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
@@ -135,6 +136,7 @@ public class AssignmentFormController implements StageAware {
                 status);
 
         assignmentDao.insert(assignment);
+
       } else {
         assignmentToEdit.setClassId(classId);
         assignmentToEdit.setTitle(title);
@@ -143,10 +145,10 @@ public class AssignmentFormController implements StageAware {
         assignmentToEdit.setPointsPossible(pointsPossible);
         assignmentToEdit.setStatus(status);
 
-        assignmentDao.update(assignmentToEdit);
+        assignmentDao.update(
+            assignmentToEdit);
       }
 
-      connection.close();
       assignmentToEdit = null;
 
       stage.setScene(
@@ -155,7 +157,9 @@ public class AssignmentFormController implements StageAware {
               stage));
 
     } catch (SQLException exception) {
-      messageLabel.setText("Could not save the assignment.");
+      messageLabel.setText(
+          "Could not save the assignment.");
+
       exception.printStackTrace();
     }
   }
@@ -177,8 +181,11 @@ public class AssignmentFormController implements StageAware {
    * Places the selected assignment information into the form.
    */
   private void loadAssignment() {
-    formTitleLabel.setText("Edit Assignment");
-    saveButton.setText("Update Assignment");
+    formTitleLabel.setText(
+        "Edit Assignment");
+
+    saveButton.setText(
+        "Update Assignment");
 
     classIdField.setText(
         Integer.toString(
