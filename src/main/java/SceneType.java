@@ -6,6 +6,7 @@
  * shared list every slice plugs into.
  *
  * @author Bay Shahryar
+ * @author Estefan Vicencio
  * @version 0.1.0
  * @since 7/28/26
  */
@@ -17,6 +18,7 @@ public enum SceneType {
     COURSES("courses.fxml"),
     ENROLLMENT("enrollment.fxml"),
     ASSIGNMENTS("assignments.fxml"),
+    ASSIGNMENT_FORM("assignment-form.fxml"),
     GRADES("grades.fxml");
 
     private final String fxmlFile;
