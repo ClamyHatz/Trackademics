@@ -55,14 +55,25 @@
   </center>
 
   <bottom>
-    <HBox spacing="10.0"
+    <VBox spacing="10.0"
       style="-fx-padding: 20;">
 
-      <Button text="Add Assignment" />
-      <Button text="Edit Assignment" />
-      <Button text="Delete Assignment" />
+      <HBox spacing="10.0">
 
-    </HBox>
+        <Button text="Add Assignment"
+          onAction="#openAssignmentForm" />
+
+        <Button text="Edit Assignment"
+          onAction="#editAssignment" />
+
+        <Button text="Delete Assignment"
+          onAction="#deleteAssignment" />
+
+      </HBox>
+
+      <Label fx:id="messageLabel" />
+
+    </VBox>
   </bottom>
 
 </BorderPane>
