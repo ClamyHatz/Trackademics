@@ -1,3 +1,4 @@
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import javafx.scene.Scene;
@@ -17,11 +18,6 @@ public class AssignmentNavigationTest extends ApplicationTest {
 
   private Stage stage;
 
-  /**
-   * Opens the assignment screen before the test begins.
-   *
-   * @param stage the JavaFX test stage
-   */
   @Override
   public void start(Stage stage) {
     this.stage = stage;
@@ -34,12 +30,10 @@ public class AssignmentNavigationTest extends ApplicationTest {
     stage.show();
   }
 
-  /**
-   * Tests that the Add Assignment button opens the form.
-   */
   @Test
   public void addAssignmentOpensFormTest() {
-    Scene assignmentScene = stage.getScene();
+    Scene assignmentScene =
+        stage.getScene();
 
     Button addButton =
         lookup("#addAssignmentButton")
@@ -50,5 +44,11 @@ public class AssignmentNavigationTest extends ApplicationTest {
     assertNotSame(
         assignmentScene,
         stage.getScene());
+
+    Button saveButton =
+        lookup("#saveButton")
+            .queryAs(Button.class);
+
+    assertNotNull(saveButton);
   }
 }
