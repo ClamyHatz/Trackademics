@@ -43,10 +43,10 @@ CREATE TABLE IF NOT EXISTS enrollments (
     );
 
 
--- Slice 3: Assignments (Estefan)
+--- Slice 3: Assignments (Estefan)
 -- One assignment belongs to one class.
 -- The title, due date, and points are required.
--- The status starts as 'Not Started' when one is not provided.
+-- The status starts as 'ACTIVE' when one is not provided.
 CREATE TABLE IF NOT EXISTS assignments (
                                            assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
                                            class_id INTEGER NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS assignments (
                                            description TEXT,
                                            due_date TEXT NOT NULL,
                                            points_possible REAL NOT NULL,
-                                           status TEXT NOT NULL DEFAULT 'Not Started',
+                                           status TEXT NOT NULL DEFAULT 'ACTIVE',
                                            FOREIGN KEY (class_id) REFERENCES classes(class_id)
     );
 -- Slice 4: Grades & Statistics (Lily)
