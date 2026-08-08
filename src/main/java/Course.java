@@ -4,8 +4,8 @@
  * This mirrors a row in the classes table. It's named Course because Class is
  * already taken in Java.
  *
- * The DAO builds these when it reads
- * from the database and pulls the values back out when it writes.
+ * The DAO builds these when it reads from the database
+ * and pulls the values back out when it writes.
  *
  * @author Ayoung Choi
  * @version 0.1.0
