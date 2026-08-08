@@ -32,7 +32,7 @@
 
   <Label text="Description" />
 
-  <TextArea fx:id="descriptionField"
+  <TextArea fx:id="descriptionArea"
     promptText="Enter a description"
     prefRowCount="4" />
 
@@ -47,7 +47,7 @@
 
   <Label text="Status" />
 
-  <ComboBox fx:id="statusBox"
+  <ComboBox fx:id="statusComboBox"
     prefWidth="200.0" />
 
   <HBox spacing="10.0">
@@ -57,7 +57,7 @@
       onAction="#saveAssignment" />
 
     <Button text="Back to Assignments"
-      onAction="#goBackToAssignments" />
+      onAction="#goBack" />
 
   </HBox>
 
