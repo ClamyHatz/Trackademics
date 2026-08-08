@@ -136,7 +136,6 @@ public class DataMaker {
         );
         assignmentDao.insert(assignment3);
 
-
         // Grades (each course only has one demo assignment, so its weight is 1.0 (100%))
         // Programming 101 grades
         gradeDao.insert(new Grade(c1Student1.getEnrollmentId(), assignment1.getAssignmentId(), 95, 1.0));
@@ -173,7 +172,8 @@ public class DataMaker {
             AssignmentDao assignmentDao = new AssignmentDao(connection);
             EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
 
-            addDemoData(gradeDao, userDao, classDAO, assignmentDao, enrollmentDAO);
+            // The line below is commented out to prevent duplicated data on repeated use.
+            //addDemoData(gradeDao, userDao, classDAO, assignmentDao, enrollmentDAO);
 
             System.out.println("Users:");
             System.out.println(userDao.findAll());
