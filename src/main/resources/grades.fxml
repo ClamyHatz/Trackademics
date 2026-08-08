@@ -5,9 +5,10 @@
 <?import javafx.geometry.Insets?>
 
 <!--
-  Placeholder for the enrollment scene.
-  Later this becomes the class on the left, its roster on the right, with
-  enroll and drop in between. For now it's just here so ENROLLMENT loads.
+  Placeholder starting scene for the skeleton.
+  The Grades slice (Lily) replaces this with the real Login screen and controller.
+  It exists so a fresh clone boots to a visible window and the scene factory has
+  something to load.
 -->
 <VBox alignment="CENTER" spacing="12.0"
       xmlns="http://javafx.com/javafx"
@@ -16,7 +17,7 @@
         <Insets top="30.0" right="30.0" bottom="30.0" left="30.0"/>
     </padding>
     <children>
-        <Label text="Enrollment"/>
-        <Label text="Class info and student roster go here."/>
+        <Label text="Trackademics"/>
+        <Label text="Skeleton is running. Grades scene goes here."/>
     </children>
 </VBox>

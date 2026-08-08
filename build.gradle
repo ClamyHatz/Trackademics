@@ -43,6 +43,16 @@ dependencies {
     testImplementation 'org.testfx:testfx-junit5:4.0.18'
 }
 
+// Pass JavaFX module-path and add-modules to the run task
+run {
+    doFirst {
+        jvmArgs = [
+                '--module-path', configurations.runtimeClasspath.asPath,
+                '--add-modules', 'javafx.controls,javafx.fxml'
+        ]
+    }
+}
+
 test {
     useJUnitPlatform()
     failOnNoDiscoveredTests = false

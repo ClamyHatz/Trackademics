@@ -47,6 +47,7 @@ public class SceneFactory {
             case ASSIGNMENTS -> buildAssignmentsScene(stage);
             case ASSIGNMENT_FORM -> buildAssignmentFormScene(stage);
             case GRADES -> buildGradesScene(stage);
+            case HOME -> buildHomeScene(stage);
         };
     }
 
@@ -80,6 +81,10 @@ public class SceneFactory {
 
     private static Scene buildGradesScene(Stage stage) {
         return loadFxml(SceneType.GRADES, stage);
+    }
+
+    private static Scene buildHomeScene(Stage stage) {
+        return loadFxml(SceneType.HOME, stage);
     }
 
     /**

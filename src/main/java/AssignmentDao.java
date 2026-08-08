@@ -35,36 +35,35 @@ public class AssignmentDao {
             + "points_possible, status) "
             + "VALUES (?, ?, ?, ?, ?, ?)";
 
-    PreparedStatement statement =
+    try (PreparedStatement statement =
         connection.prepareStatement(
             sql,
-            Statement.RETURN_GENERATED_KEYS);
+            Statement.RETURN_GENERATED_KEYS)) {
 
-    statement.setInt(1, assignment.getClassId());
-    statement.setString(2, assignment.getTitle());
-    statement.setString(3, assignment.getDescription());
-    statement.setString(
-        4,
-        assignment.getDueDate().toString());
-    statement.setDouble(
-        5,
-        assignment.getPointsPossible());
-    statement.setString(
-        6,
-        assignment.getStatus());
+      statement.setInt(1, assignment.getClassId());
+      statement.setString(2, assignment.getTitle());
+      statement.setString(3, assignment.getDescription());
+      statement.setString(
+          4,
+          assignment.getDueDate().toString());
+      statement.setDouble(
+          5,
+          assignment.getPointsPossible());
+      statement.setString(
+          6,
+          assignment.getStatus());
 
-    statement.executeUpdate();
+      statement.executeUpdate();
 
-    ResultSet keys =
-        statement.getGeneratedKeys();
+      try (ResultSet keys =
+          statement.getGeneratedKeys()) {
 
-    if (keys.next()) {
-      assignment.setAssignmentId(
-          keys.getInt(1));
+        if (keys.next()) {
+          assignment.setAssignmentId(
+              keys.getInt(1));
+        }
+      }
     }
-
-    keys.close();
-    statement.close();
   }
 
   /**
@@ -77,50 +76,49 @@ public class AssignmentDao {
         "SELECT * FROM assignments "
             + "WHERE assignment_id = ?";
 
-    PreparedStatement statement =
-        connection.prepareStatement(sql);
-
-    statement.setInt(1, assignmentId);
-
-    ResultSet result =
-        statement.executeQuery();
-
     Assignment assignment = null;
 
-    if (result.next()) {
-      int classId =
-          result.getInt("class_id");
+    try (PreparedStatement statement =
+        connection.prepareStatement(sql)) {
 
-      String title =
-          result.getString("title");
+      statement.setInt(1, assignmentId);
 
-      String description =
-          result.getString("description");
+      try (ResultSet result =
+          statement.executeQuery()) {
 
-      String dueDateText =
-          result.getString("due_date");
+        if (result.next()) {
+          int classId =
+              result.getInt("class_id");
 
-      double pointsPossible =
-          result.getDouble("points_possible");
+          String title =
+              result.getString("title");
 
-      String status =
-          result.getString("status");
+          String description =
+              result.getString("description");
 
-      LocalDate dueDate =
-          LocalDate.parse(dueDateText);
+          String dueDateText =
+              result.getString("due_date");
 
-      assignment = new Assignment(
-          assignmentId,
-          classId,
-          title,
-          description,
-          dueDate,
-          pointsPossible,
-          status);
+          double pointsPossible =
+              result.getDouble("points_possible");
+
+          String status =
+              result.getString("status");
+
+          LocalDate dueDate =
+              LocalDate.parse(dueDateText);
+
+          assignment = new Assignment(
+              assignmentId,
+              classId,
+              title,
+              description,
+              dueDate,
+              pointsPossible,
+              status);
+        }
+      }
     }
-
-    result.close();
-    statement.close();
 
     return assignment;
   }
@@ -135,55 +133,53 @@ public class AssignmentDao {
         "SELECT * FROM assignments "
             + "ORDER BY due_date";
 
-    Statement statement =
-        connection.createStatement();
-
-    ResultSet result =
-        statement.executeQuery(sql);
-
     List<Assignment> assignments =
         new ArrayList<>();
 
-    while (result.next()) {
-      int assignmentId =
-          result.getInt("assignment_id");
+    try (Statement statement =
+        connection.createStatement();
 
-      int classId =
-          result.getInt("class_id");
+        ResultSet result =
+            statement.executeQuery(sql)) {
 
-      String title =
-          result.getString("title");
+      while (result.next()) {
+        int assignmentId =
+            result.getInt("assignment_id");
 
-      String description =
-          result.getString("description");
+        int classId =
+            result.getInt("class_id");
 
-      String dueDateText =
-          result.getString("due_date");
+        String title =
+            result.getString("title");
 
-      double pointsPossible =
-          result.getDouble("points_possible");
+        String description =
+            result.getString("description");
 
-      String status =
-          result.getString("status");
+        String dueDateText =
+            result.getString("due_date");
 
-      LocalDate dueDate =
-          LocalDate.parse(dueDateText);
+        double pointsPossible =
+            result.getDouble("points_possible");
 
-      Assignment assignment =
-          new Assignment(
-              assignmentId,
-              classId,
-              title,
-              description,
-              dueDate,
-              pointsPossible,
-              status);
+        String status =
+            result.getString("status");
 
-      assignments.add(assignment);
+        LocalDate dueDate =
+            LocalDate.parse(dueDateText);
+
+        Assignment assignment =
+            new Assignment(
+                assignmentId,
+                classId,
+                title,
+                description,
+                dueDate,
+                pointsPossible,
+                status);
+
+        assignments.add(assignment);
+      }
     }
-
-    result.close();
-    statement.close();
 
     return assignments;
   }
@@ -199,54 +195,53 @@ public class AssignmentDao {
             + "WHERE class_id = ? "
             + "ORDER BY due_date";
 
-    PreparedStatement statement =
-        connection.prepareStatement(sql);
-
-    statement.setInt(1, classId);
-
-    ResultSet result =
-        statement.executeQuery();
-
     List<Assignment> assignments =
         new ArrayList<>();
 
-    while (result.next()) {
-      int assignmentId =
-          result.getInt("assignment_id");
+    try (PreparedStatement statement =
+        connection.prepareStatement(sql)) {
 
-      String title =
-          result.getString("title");
+      statement.setInt(1, classId);
 
-      String description =
-          result.getString("description");
+      try (ResultSet result =
+          statement.executeQuery()) {
 
-      String dueDateText =
-          result.getString("due_date");
+        while (result.next()) {
+          int assignmentId =
+              result.getInt("assignment_id");
 
-      double pointsPossible =
-          result.getDouble("points_possible");
+          String title =
+              result.getString("title");
 
-      String status =
-          result.getString("status");
+          String description =
+              result.getString("description");
 
-      LocalDate dueDate =
-          LocalDate.parse(dueDateText);
+          String dueDateText =
+              result.getString("due_date");
 
-      Assignment assignment =
-          new Assignment(
-              assignmentId,
-              classId,
-              title,
-              description,
-              dueDate,
-              pointsPossible,
-              status);
+          double pointsPossible =
+              result.getDouble("points_possible");
 
-      assignments.add(assignment);
+          String status =
+              result.getString("status");
+
+          LocalDate dueDate =
+              LocalDate.parse(dueDateText);
+
+          Assignment assignment =
+              new Assignment(
+                  assignmentId,
+                  classId,
+                  title,
+                  description,
+                  dueDate,
+                  pointsPossible,
+                  status);
+
+          assignments.add(assignment);
+        }
+      }
     }
-
-    result.close();
-    statement.close();
 
     return assignments;
   }
@@ -267,39 +262,39 @@ public class AssignmentDao {
             + "status = ? "
             + "WHERE assignment_id = ?";
 
-    PreparedStatement statement =
-        connection.prepareStatement(sql);
+    try (PreparedStatement statement =
+        connection.prepareStatement(sql)) {
 
-    statement.setInt(
-        1,
-        assignment.getClassId());
+      statement.setInt(
+          1,
+          assignment.getClassId());
 
-    statement.setString(
-        2,
-        assignment.getTitle());
+      statement.setString(
+          2,
+          assignment.getTitle());
 
-    statement.setString(
-        3,
-        assignment.getDescription());
+      statement.setString(
+          3,
+          assignment.getDescription());
 
-    statement.setString(
-        4,
-        assignment.getDueDate().toString());
+      statement.setString(
+          4,
+          assignment.getDueDate().toString());
 
-    statement.setDouble(
-        5,
-        assignment.getPointsPossible());
+      statement.setDouble(
+          5,
+          assignment.getPointsPossible());
 
-    statement.setString(
-        6,
-        assignment.getStatus());
+      statement.setString(
+          6,
+          assignment.getStatus());
 
-    statement.setInt(
-        7,
-        assignment.getAssignmentId());
+      statement.setInt(
+          7,
+          assignment.getAssignmentId());
 
-    statement.executeUpdate();
-    statement.close();
+      statement.executeUpdate();
+    }
   }
 
   /**
@@ -312,12 +307,11 @@ public class AssignmentDao {
         "DELETE FROM assignments "
             + "WHERE assignment_id = ?";
 
-    PreparedStatement statement =
-        connection.prepareStatement(sql);
+    try (PreparedStatement statement =
+        connection.prepareStatement(sql)) {
 
-    statement.setInt(1, assignmentId);
-
-    statement.executeUpdate();
-    statement.close();
+      statement.setInt(1, assignmentId);
+      statement.executeUpdate();
+    }
   }
 }
