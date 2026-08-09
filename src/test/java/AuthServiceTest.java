@@ -170,6 +170,14 @@ public class AuthServiceTest {
         assertNull(result.getUser());
     }
 
+    @Test
+    public void loginBlankPasswordFails() {
+        AuthResult result = authService.login("bay", "");
+
+        assertFalse(result.isSuccess());
+        assertNull(result.getUser());
+    }
+
     /**
      * The generic error is the same whether the username is unknown or the
      * password is wrong, so the app never reveals which usernames exist.

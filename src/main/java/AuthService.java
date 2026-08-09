@@ -41,7 +41,9 @@ public class AuthService {
      *
      * Checks run in order and stop at the first problem: blank username, blank
      * password, blank confirm, missing role, mismatched passwords, then a
-     * duplicate username. On success the new user is inserted and returned.
+     * duplicate username. Username and password are stripped of surrounding
+     * whitespace so " bay " and "bay" are treated as the same. On success the
+     * new user is inserted and returned.
      *
      * @param username        the requested username
      * @param password        the chosen password
@@ -54,12 +56,15 @@ public class AuthService {
         if (isBlank(username)) {
             return AuthResult.failure("Please enter a username.");
         }
+        username = username.strip();
         if (isBlank(password)) {
             return AuthResult.failure("Please enter a password.");
         }
+        password = password.strip();
         if (isBlank(confirmPassword)) {
             return AuthResult.failure("Please confirm your password.");
         }
+        confirmPassword = confirmPassword.strip();
         if (isBlank(role)) {
             return AuthResult.failure("Please choose a role.");
         }
@@ -90,9 +95,10 @@ public class AuthService {
     /**
      * Logs a user in after checking the input.
      *
-     * Blank fields return a specific prompt. Any real failure (unknown username
-     * or wrong password) returns the same generic message so the app does not
-     * reveal which usernames exist.
+     * Blank fields return a specific prompt. Username and password are stripped
+     * of surrounding whitespace to match how accounts are stored. Any real
+     * failure (unknown username or wrong password) returns the same generic
+     * message so the app does not reveal which usernames exist.
      *
      * @param username the entered username
      * @param password the entered password
@@ -102,9 +108,11 @@ public class AuthService {
         if (isBlank(username)) {
             return AuthResult.failure("Please enter a username.");
         }
+        username = username.strip();
         if (isBlank(password)) {
             return AuthResult.failure("Please enter a password.");
         }
+        password = password.strip();
 
         try {
             User user = userDao.findByUsername(username);
