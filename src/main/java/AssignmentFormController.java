@@ -178,6 +178,19 @@ public class AssignmentFormController implements StageAware {
   }
 
   /**
+   * Returns to the home screen.
+   */
+  @FXML
+  private void goHome() {
+    assignmentToEdit = null;
+
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.HOME,
+            stage));
+  }
+
+  /**
    * Places the selected assignment information into the form.
    */
   private void loadAssignment() {

@@ -148,6 +148,17 @@ public class AssignmentController implements StageAware {
   }
 
   /**
+   * Returns to the home screen.
+   */
+  @FXML
+  private void goHome() {
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.HOME,
+            stage));
+  }
+
+  /**
    * Loads assignments from the database.
    */
   private void loadAssignments() {
