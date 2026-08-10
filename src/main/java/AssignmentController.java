@@ -6,6 +6,7 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -38,6 +39,15 @@ public class AssignmentController implements StageAware {
   private TableColumn<Assignment, String> statusColumn;
 
   @FXML
+  private Button addAssignmentButton;
+
+  @FXML
+  private Button editAssignmentButton;
+
+  @FXML
+  private Button deleteAssignmentButton;
+
+  @FXML
   private Label messageLabel;
 
   /**
@@ -46,6 +56,8 @@ public class AssignmentController implements StageAware {
   @Override
   public void setStage(Stage stage) {
     this.stage = stage;
+
+    checkUserRole();
   }
 
   /**
@@ -66,6 +78,27 @@ public class AssignmentController implements StageAware {
         new PropertyValueFactory<>("status"));
 
     loadAssignments();
+  }
+
+  /**
+   * Checks the logged-in user's role.
+   */
+  private void checkUserRole() {
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null) {
+      addAssignmentButton.setDisable(true);
+      editAssignmentButton.setDisable(true);
+      deleteAssignmentButton.setDisable(true);
+      return;
+    }
+
+    if ("STUDENT".equals(currentUser.getRole())) {
+      addAssignmentButton.setDisable(true);
+      editAssignmentButton.setDisable(true);
+      deleteAssignmentButton.setDisable(true);
+    }
   }
 
   /**
@@ -122,17 +155,14 @@ public class AssignmentController implements StageAware {
       return;
     }
 
-    try {
-      Connection connection =
-          DatabaseConnection.getConnection();
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
 
       assignmentDao.delete(
           selectedAssignment.getAssignmentId());
-
-      connection.close();
 
       loadAssignments();
 
@@ -162,9 +192,8 @@ public class AssignmentController implements StageAware {
    * Loads assignments from the database.
    */
   private void loadAssignments() {
-    try {
-      Connection connection =
-          DatabaseConnection.getConnection();
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
@@ -177,8 +206,6 @@ public class AssignmentController implements StageAware {
               savedAssignments);
 
       assignmentTable.setItems(assignments);
-
-      connection.close();
 
     } catch (SQLException exception) {
       System.out.println(

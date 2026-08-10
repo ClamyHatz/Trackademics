@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 
@@ -22,12 +23,26 @@ public class AssignmentNavigationTest extends ApplicationTest {
   public void start(Stage stage) {
     this.stage = stage;
 
+    User teacher =
+        new User(
+            1,
+            "testTeacher",
+            "password",
+            "TEACHER");
+
+    Session.setCurrentUser(teacher);
+
     stage.setScene(
         SceneFactory.create(
             SceneType.ASSIGNMENTS,
             stage));
 
     stage.show();
+  }
+
+  @AfterEach
+  public void clearSession() {
+    Session.clear();
   }
 
   @Test
