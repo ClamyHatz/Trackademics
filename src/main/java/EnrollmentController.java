@@ -23,7 +23,7 @@ import java.sql.SQLException;
  * than the thing the user sees.
  *
  * @author Ayoung Choi
- * @version 0.1.0
+ * @version 0.1.1
  * @since 8/8/26
  */
 public class EnrollmentController implements StageAware {
@@ -93,7 +93,7 @@ public class EnrollmentController implements StageAware {
         }
 
         try {
-            String problem = whyNotEnroll(course.getClassId(), studentId);
+            String problem = whyNotEnroll(studentId);
             if (problem != null) {
                 messageLabel.setText(problem);
                 return;
@@ -141,14 +141,15 @@ public class EnrollmentController implements StageAware {
     }
 
     /**
-     * Says what's wrong with an enroll request, if anything.
+     * Says what's wrong with an enroll request, if anything. The duplicate
+     * check reads the roster list, which already holds every enrollment for
+     * the selected class.
      *
-     * @param classId the class they want to join
      * @param studentId the student joining
      * @return null if the request is fine, otherwise what's wrong with it
      * @throws SQLException if a lookup fails
      */
-    private String whyNotEnroll(int classId, int studentId) throws SQLException {
+    private String whyNotEnroll(int studentId) throws SQLException {
         if (studentId <= 0) {
             return "The student ID must be greater than zero.";
         }
