@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="LoginController"
+      alignment="CENTER"
+      spacing="15">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label text="Log In"
+           style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+
+    <TextField fx:id="usernameField"
+               promptText="Username"
+               maxWidth="260" />
+
+    <PasswordField fx:id="passwordField"
+                   promptText="Password"
+                   maxWidth="260" />
+
+    <Button text="Log In"
+            prefWidth="260"
+            onAction="#handleLogin" />
+
+    <Label fx:id="messageLabel"
+           style="-fx-text-fill: #b00020;" />
+
+    <Hyperlink text="Create an account"
+               onAction="#openRegister" />
+
+    <Button text="Back to Home"
+            prefWidth="260"
+            onAction="#openHome" />
+
+</VBox>

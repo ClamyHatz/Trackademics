@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="HomeController"
+      alignment="CENTER"
+      spacing="20">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label text="Trackademics Home"
+           style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+
+    <Button text="Courses"
+            prefWidth="220"
+            onAction="#openCourses" />
+
+    <Button text="Enrollment"
+            prefWidth="220"
+            onAction="#openEnrollment" />
+
+    <Button text="Assignments"
+            prefWidth="220"
+            onAction="#openAssignments" />
+
+    <Button text="Grades"
+            prefWidth="220"
+            onAction="#openGrades" />
+
+    <Button text="Log In"
+            prefWidth="220"
+            onAction="#openLogin" />
+
+</VBox>
