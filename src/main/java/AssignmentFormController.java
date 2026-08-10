@@ -39,7 +39,9 @@ public class AssignmentFormController implements StageAware {
    *
    * @param assignment the selected assignment
    */
-  public static void setAssignmentToEdit(Assignment assignment) {
+  public static void setAssignmentToEdit(
+      Assignment assignment) {
+
     assignmentToEdit = assignment;
   }
 
@@ -78,21 +80,32 @@ public class AssignmentFormController implements StageAware {
     double pointsPossible;
 
     try {
-      classId = Integer.parseInt(classIdField.getText());
+      classId =
+          Integer.parseInt(
+              classIdField.getText());
+
     } catch (NumberFormatException exception) {
-      messageLabel.setText("Class ID must be a whole number.");
+      messageLabel.setText(
+          "Class ID must be a whole number.");
       return;
     }
 
     try {
-      pointsPossible = Double.parseDouble(pointsField.getText());
+      pointsPossible =
+          Double.parseDouble(
+              pointsField.getText());
+
     } catch (NumberFormatException exception) {
-      messageLabel.setText("Points must be a number.");
+      messageLabel.setText(
+          "Points must be a number.");
       return;
     }
 
-    String title = titleField.getText();
-    LocalDate dueDate = dueDatePicker.getValue();
+    String title =
+        titleField.getText();
+
+    LocalDate dueDate =
+        dueDatePicker.getValue();
 
     AssignmentService service =
         new AssignmentService();
@@ -105,7 +118,12 @@ public class AssignmentFormController implements StageAware {
             pointsPossible);
 
     if (!validationMessage.isEmpty()) {
-      messageLabel.setText(validationMessage);
+      messageLabel.setText(
+          validationMessage);
+      return;
+    }
+
+    if (!canManageClass(classId)) {
       return;
     }
 
@@ -142,7 +160,8 @@ public class AssignmentFormController implements StageAware {
         assignmentToEdit.setTitle(title);
         assignmentToEdit.setDescription(description);
         assignmentToEdit.setDueDate(dueDate);
-        assignmentToEdit.setPointsPossible(pointsPossible);
+        assignmentToEdit.setPointsPossible(
+            pointsPossible);
         assignmentToEdit.setStatus(status);
 
         assignmentDao.update(
@@ -161,6 +180,57 @@ public class AssignmentFormController implements StageAware {
           "Could not save the assignment.");
 
       exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Checks whether the logged-in teacher owns
+   * the selected class.
+   */
+  private boolean canManageClass(
+      int classId) {
+
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null
+        || !"TEACHER".equals(
+        currentUser.getRole())) {
+
+      messageLabel.setText(
+          "Only teachers can save assignments.");
+      return false;
+    }
+
+    try {
+      ClassDAO classDao =
+          new ClassDAO();
+
+      Course course =
+          classDao.findById(classId);
+
+      if (course == null) {
+        messageLabel.setText(
+            "The class could not be found.");
+        return false;
+      }
+
+      if (course.getTeacherId()
+          != currentUser.getUserId()) {
+
+        messageLabel.setText(
+            "You can only manage assignments for your own classes.");
+        return false;
+      }
+
+      return true;
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not check the class.");
+
+      exception.printStackTrace();
+      return false;
     }
   }
 

@@ -56,7 +56,6 @@ public class AssignmentController implements StageAware {
   @Override
   public void setStage(Stage stage) {
     this.stage = stage;
-
     checkUserRole();
   }
 
@@ -81,24 +80,20 @@ public class AssignmentController implements StageAware {
   }
 
   /**
-   * Checks the logged-in user's role.
+   * Checks whether the logged-in user can change assignments.
    */
   private void checkUserRole() {
     User currentUser =
         Session.getCurrentUser();
 
-    if (currentUser == null) {
-      addAssignmentButton.setDisable(true);
-      editAssignmentButton.setDisable(true);
-      deleteAssignmentButton.setDisable(true);
-      return;
-    }
+    boolean canEdit =
+        currentUser != null
+            && "TEACHER".equals(
+            currentUser.getRole());
 
-    if ("STUDENT".equals(currentUser.getRole())) {
-      addAssignmentButton.setDisable(true);
-      editAssignmentButton.setDisable(true);
-      deleteAssignmentButton.setDisable(true);
-    }
+    addAssignmentButton.setDisable(!canEdit);
+    editAssignmentButton.setDisable(!canEdit);
+    deleteAssignmentButton.setDisable(!canEdit);
   }
 
   /**
@@ -106,6 +101,18 @@ public class AssignmentController implements StageAware {
    */
   @FXML
   private void openAssignmentForm() {
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null
+        || !"TEACHER".equals(
+        currentUser.getRole())) {
+
+      messageLabel.setText(
+          "Only teachers can add assignments.");
+      return;
+    }
+
     AssignmentFormController.setAssignmentToEdit(null);
 
     stage.setScene(
@@ -127,6 +134,12 @@ public class AssignmentController implements StageAware {
     if (selectedAssignment == null) {
       messageLabel.setText(
           "Select an assignment first.");
+      return;
+    }
+
+    if (!canManageAssignment(
+        selectedAssignment)) {
+
       return;
     }
 
@@ -155,6 +168,12 @@ public class AssignmentController implements StageAware {
       return;
     }
 
+    if (!canManageAssignment(
+        selectedAssignment)) {
+
+      return;
+    }
+
     try (Connection connection =
         DatabaseConnection.getConnection()) {
 
@@ -174,6 +193,58 @@ public class AssignmentController implements StageAware {
           "Could not delete the assignment.");
 
       exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Checks whether the logged-in teacher owns the
+   * class that the assignment belongs to.
+   */
+  private boolean canManageAssignment(
+      Assignment assignment) {
+
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null
+        || !"TEACHER".equals(
+        currentUser.getRole())) {
+
+      messageLabel.setText(
+          "Only teachers can change assignments.");
+      return false;
+    }
+
+    try {
+      ClassDAO classDao =
+          new ClassDAO();
+
+      Course course =
+          classDao.findById(
+              assignment.getClassId());
+
+      if (course == null) {
+        messageLabel.setText(
+            "The class could not be found.");
+        return false;
+      }
+
+      if (course.getTeacherId()
+          != currentUser.getUserId()) {
+
+        messageLabel.setText(
+            "You can only manage assignments for your own classes.");
+        return false;
+      }
+
+      return true;
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not check the class.");
+
+      exception.printStackTrace();
+      return false;
     }
   }
 
