@@ -49,20 +49,20 @@
                 <ComboBox fx:id="viewByComboBox"
                           prefWidth="120.0"
                           onAction="#handleViewByChanged"/>
-                <!-- Selection box that you choose which student you are viewing by -->
-                <Label fx:id="selectionPromptLabel"
-                       text="Student"
-                       style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
-                <ComboBox fx:id="selectionComboBox"
-                          prefWidth="120.0"
-                          onAction="#handleSelectionChanged"/>
                 <!-- Selection box that you choose which class you are viewing by -->
                 <Label fx:id="classSelectionPromptLabel"
                        text="Choose Class"
                        style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
                 <ComboBox fx:id="classSelectionComboBox"
-                          prefWidth="120.0"
+                          prefWidth="180.0"
                           onAction="#handleClassSelectionChanged"/>
+                <!-- Selection box that you choose which student you are viewing by -->
+                <Label fx:id="selectionPromptLabel"
+                       text="Student"
+                       style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
+                <ComboBox fx:id="selectionComboBox"
+                          prefWidth="180.0"
+                          onAction="#handleSelectionChanged"/>
                 <Region HBox.hgrow="ALWAYS"/>
             </HBox>
         </VBox>
