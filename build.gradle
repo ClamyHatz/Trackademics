@@ -41,6 +41,7 @@ dependencies {
     // JavaFX UI testing.
     testImplementation 'org.testfx:testfx-core:4.0.18'
     testImplementation 'org.testfx:testfx-junit5:4.0.18'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 // Pass JavaFX module-path and add-modules to the run task
