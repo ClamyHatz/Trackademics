@@ -17,6 +17,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 
+/**
+ * Controls the grades.fxml scene
+ *
+ * @author Lily Keus
+ * @version 0.1.0
+ * @since 8/10/2026
+ */
+
 public class GradesController implements StageAware {
 
     public enum ViewMode {
@@ -27,6 +35,11 @@ public class GradesController implements StageAware {
 
         private final String label;
 
+        /**
+         * Creates a view mode with the specified display label.
+         *
+         * @param label the text displayed for this view mode
+         */
         ViewMode(String label) {
             this.label = label;
         }
@@ -65,6 +78,10 @@ public class GradesController implements StageAware {
     private User currentUser;
     private boolean updatingControls = false;
 
+    /**
+     * Initializes the grades screen and configures the table, user permissions,
+     * view options, and displayed grade data.
+     */
     @FXML
     private void initialize() {
         currentUser = Session.getCurrentUser();
@@ -146,10 +163,7 @@ public class GradesController implements StageAware {
 
                 double currentTotal = classPointTotals.getOrDefault(classId, 0.0);
 
-                classPointTotals.put(
-                        classId,
-                        currentTotal + assignment.getPointsPossible()
-                );
+                classPointTotals.put(classId, currentTotal + assignment.getPointsPossible());
             }
 
             for (Assignment assignment : authorizedAssignments) {
@@ -215,6 +229,10 @@ public class GradesController implements StageAware {
         }
     }
 
+    /**
+     * Handles a change to the selected teacher view mode and updates
+     * the available selections and displayed grade rows.
+     */
     @FXML
     private void handleViewByChanged() {
         if (updatingControls) {
@@ -225,6 +243,9 @@ public class GradesController implements StageAware {
         showSelectedRows();
     }
 
+    /**
+     * Handles a change to the selected student or assignment.
+     */
     @FXML
     private void handleSelectionChanged() {
         if (updatingControls) {
@@ -233,6 +254,10 @@ public class GradesController implements StageAware {
         showSelectedRows();
     }
 
+    /**
+     * Handles a change to the selected class and updates the available
+     * students or assignments.
+     */
     @FXML
     private void handleClassSelectionChanged() {
         if (updatingControls) {
@@ -241,13 +266,15 @@ public class GradesController implements StageAware {
 
         ViewMode mode = getSelectedMode();
 
-        if (mode == ViewMode.TEACHER_BY_STUDENT
-                || mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
+        if (mode == ViewMode.TEACHER_BY_STUDENT || mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
             fillSelectionBox();
         }
         showSelectedRows();
     }
 
+    /**
+     * Updates the controls and table columns based on the current view mode.
+     */
     private void changeView() {
         ViewMode mode = getSelectedMode();
 
@@ -255,7 +282,7 @@ public class GradesController implements StageAware {
         boolean studentView = mode == ViewMode.STUDENT;
         boolean loggedOut = mode == ViewMode.LOGGED_OUT;
 
-        if (loggedOut) {
+        if (loggedOut) { // Hides everything if the user is logged out
             studentColumn.setVisible(false);
             assignmentColumn.setVisible(false);
             dueDateColumn.setVisible(false);
@@ -286,6 +313,7 @@ public class GradesController implements StageAware {
 
             return;
         }
+        // Hides / shows different things depending on view type
         gradesTable.setVisible(true);
         gradesTable.setManaged(true);
 
@@ -355,6 +383,10 @@ public class GradesController implements StageAware {
         scoreColumn.setEditable(teacher);
     }
 
+    /**
+     * Fills the class and selection combo boxes with choices available
+     * for the current user and view mode.
+     */
     private void fillSelectionBox() {
         updatingControls = true;
 
@@ -424,6 +456,10 @@ public class GradesController implements StageAware {
         }
     }
 
+    /**
+     * Filters the available grade rows according to the current class,
+     * student, assignment, and view selections.
+     */
     private void showSelectedRows() {
         shownRows.clear();
 
@@ -462,6 +498,10 @@ public class GradesController implements StageAware {
 
     /**
      * Checks whether the logged-in user is allowed to access a course.
+     *
+     * @param course the course being checked
+     * @param enrollments the list of enrollments used to check student access
+     * @return true if the current user can access the course; false otherwise
      */
     private boolean canAccessCourse(Course course, List<Enrollment> enrollments) {
         if (currentUser == null || course == null) {
@@ -484,7 +524,12 @@ public class GradesController implements StageAware {
     }
 
     /**
-     * Re-checks teacher ownership before a grade is written to the database.
+     * Checks whether the current teacher is allowed to edit a grade row.
+     *
+     * @param row the grade row being checked
+     * @return true if the current teacher owns the course associated with the row;
+     *         false otherwise
+     * @throws SQLException if a database error occurs while retrieving the course
      */
     private boolean canEditGradeRow(GradeRow row) throws SQLException {
         if (!teacher || currentUser == null || row == null) {
@@ -497,6 +542,12 @@ public class GradesController implements StageAware {
         return course != null && course.getTeacherId() == currentUser.getUserId();
     }
 
+    /**
+     * Validates and saves an edited grade score to the database.
+     *
+     * @param row the grade row being edited
+     * @param text the new score entered by the teacher
+     */
     private void saveScore(GradeRow row, String text) {
         if (!teacher) {
             gradesTable.refresh();
@@ -542,6 +593,10 @@ public class GradesController implements StageAware {
         }
     }
 
+    /**
+     * Calculates and displays the student's overall grade using the
+     * currently displayed grade rows.
+     */
     private void updateOverallGrade() {
         if (getSelectedMode() != ViewMode.STUDENT) {
             overallGradeLabel.setText("");
@@ -552,8 +607,11 @@ public class GradesController implements StageAware {
         double pointsPossible = 0.0;
 
         for (GradeRow row : shownRows) {
-            pointsEarned += row.getGrade().getGrade();
-            pointsPossible += row.getPointsPossible();
+
+            if (row.getGrade() != null) {
+                pointsEarned += row.getGrade().getGrade();
+                pointsPossible += row.getPointsPossible();
+            }
         }
 
         if (pointsPossible == 0.0) {
@@ -568,6 +626,13 @@ public class GradesController implements StageAware {
         );
     }
 
+    /**
+     * Converts score text into a numeric score.
+     * If the text contains a slash, only the value before the slash is used.
+     *
+     * @param text the score text to parse
+     * @return the numeric score, or null if the text is empty or invalid
+     */
     private Double readScore(String text) {
         if (text == null || text.isBlank()) {
             return null;
@@ -586,6 +651,12 @@ public class GradesController implements StageAware {
         }
     }
 
+    /**
+     * Determines the view mode that should be used for the current user.
+     *
+     * @return the appropriate view mode for the logged-in user, or
+     *         LOGGED_OUT if no user is logged in
+     */
     private ViewMode getSelectedMode() {
         if (Session.isLoggedIn()) {
             if (!teacher) {
@@ -604,18 +675,27 @@ public class GradesController implements StageAware {
         }
     }
 
+    /**
+     * Sets the JavaFX stage used by this controller.
+     *
+     * @param stage the stage associated with this controller
+     */
     @Override
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
+    /**
+     * Returns the user to the home screen.
+     */
     @FXML
     private void goHome() {
         stage.setScene(SceneFactory.create(SceneType.HOME, stage));
     }
 
     /**
-     * One row shown in the table. It combines information found through the DAOs.
+     * Represents one row displayed in the grades table.
+     * Combines grade, assignment, student, enrollment, and course information.
      */
     public static class GradeRow {
         private final Grade grade;
@@ -630,6 +710,21 @@ public class GradesController implements StageAware {
         private final int enrollmentId;
         private final double coursePercent;
 
+        /**
+         * Creates a grade row containing the information needed by the grades table.
+         *
+         * @param grade the Grade associated with the row, or null if no grade exists
+         * @param assignmentId the ID of the assignment
+         * @param classId the ID of the class
+         * @param assignmentName the name of the assignment
+         * @param dueDate the assignment due date
+         * @param pointsPossible the maximum points possible for the assignment
+         * @param studentId the ID of the student
+         * @param studentName the student's username
+         * @param courseName the name of the course
+         * @param enrollmentId the ID of the student's enrollment
+         * @param coursePercent the percentage of the course represented by the assignment
+         */
         public GradeRow(
                 Grade grade,
                 int assignmentId,
@@ -696,6 +791,15 @@ public class GradesController implements StageAware {
             return studentName;
         }
 
+        public double getCoursePercent() {
+            return coursePercent;
+        }
+
+        /**
+         * Gets the grade formatted for display in the table.
+         *
+         * @return the score and points possible as display text
+         */
         public String getScoreText() {
             if (grade == null) {
                 return "— / " + pointsPossible;
@@ -704,12 +808,14 @@ public class GradesController implements StageAware {
             return grade.getGrade() + " / " + pointsPossible;
         }
 
-        public double getCoursePercent() {
-            return coursePercent;
-        }
-
+        /**
+         * Gets the course percentage formatted for display.
+         *
+         * @return the course percentage followed by a percent sign
+         */
         public String getCoursePercentText() {
             return String.format("%.2f%%", coursePercent);
         }
+
     }
 }

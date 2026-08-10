@@ -64,6 +64,5 @@ Issue if the team later decides to attempt it for extra credit._
 | Bob | password1 | STUDENT |
 | Sally | CoolThing72 | STUDENT |
 | Charlie | passwordz | STUDENT|
-| Joe | SomethingIG | STUDENT 
-|
-Requirements: JDK <version>, JavaFX <version>. Any setup notes go here.
+| Joe | SomethingIG | STUDENT |
+Requirements: JDK <version>, JavaFX <version>.
