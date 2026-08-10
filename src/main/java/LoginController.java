@@ -12,11 +12,12 @@ import javafx.stage.Stage;
  * Controls the login screen.
  *
  * Reads the username and password, asks AuthService to log in, and on success
- * stores the user in Session and returns to the home page. Failures are shown
- * both in an inline message label and in an alert dialog.
+ * stores the user in Session and returns to the home page. Failures show both an
+ * inline message and an alert. If someone is already logged in, the login screen
+ * sends them back to home instead of letting them log in over the top.
  *
  * @author Bay Shahryar
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/9/26
  */
 public class LoginController implements StageAware {
@@ -40,6 +41,11 @@ public class LoginController implements StageAware {
     @Override
     public void setStage(Stage stage) {
         this.stage = stage;
+        // setStage runs after initialize, so the redirect check lives here where
+        // the stage is available to navigate with.
+        if (Session.isLoggedIn()) {
+            changeScene(SceneType.HOME);
+        }
     }
 
     /**
@@ -47,15 +53,15 @@ public class LoginController implements StageAware {
      */
     @FXML
     private void handleLogin() {
+        messageLabel.setText("");
+
         String username = usernameField.getText();
         String password = passwordField.getText();
 
         AuthResult result;
-        try {
-            Connection connection = DatabaseConnection.getConnection();
+        try (Connection connection = DatabaseConnection.getConnection()) {
             AuthService authService = new AuthService(new UserDao(connection));
             result = authService.login(username, password);
-            connection.close();
         } catch (SQLException exception) {
             showAlert(Alert.AlertType.ERROR, "Login Error",
                     "Could not reach the database. Please try again.");
