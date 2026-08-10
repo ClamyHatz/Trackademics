@@ -18,7 +18,7 @@ import javafx.stage.Stage;
  * alert.
  *
  * @author Bay Shahryar
- * @version 0.2.0
+ * @version 0.3.0
  * @since 8/9/26
  */
 public class RegisterController implements StageAware {
@@ -55,16 +55,16 @@ public class RegisterController implements StageAware {
      */
     @FXML
     private void handleRegister() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
+        messageLabel.setText("");
+
+        String username = usernameField.getText().strip();
+        String password = passwordField.getText().strip();
+        String confirmPassword = confirmPasswordField.getText().strip();
 
         AuthResult result;
-        try {
-            Connection connection = DatabaseConnection.getConnection();
+        try (Connection connection = DatabaseConnection.getConnection()) {
             AuthService authService = new AuthService(new UserDao(connection));
             result = authService.register(username, password, confirmPassword, DEFAULT_ROLE);
-            connection.close();
         } catch (SQLException exception) {
             showAlert(Alert.AlertType.ERROR, "Registration Error",
                     "Could not reach the database. Please try again.");
