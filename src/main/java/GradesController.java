@@ -22,7 +22,8 @@ public class GradesController implements StageAware {
     public enum ViewMode {
         STUDENT("My grades"),
         TEACHER_BY_STUDENT("Students"),
-        TEACHER_BY_ASSIGNMENT("Assignments");
+        TEACHER_BY_ASSIGNMENT("Assignments"),
+        LOGGED_OUT("Logged Out");
 
         private final String label;
 
@@ -36,17 +37,16 @@ public class GradesController implements StageAware {
         }
     }
 
-    @FXML private Label statusLabel;
     @FXML private Label selectionPromptLabel;
     @FXML private Label tableTitleLabel;
     @FXML private Label classSelectionPromptLabel;
     @FXML private Label viewByComboBoxLabel;
     @FXML private Label overallGradeLabel;
     @FXML private Label topGradesLabel;
+    @FXML private Label loggedOutLabel;
 
     @FXML private ComboBox<ViewMode> viewByComboBox;
     @FXML private ComboBox<String> selectionComboBox;
-    @FXML private ComboBox<String> userTypeComboBox;
     @FXML private ComboBox<String> classSelectionComboBox;
 
     @FXML private TableView<GradeRow> gradesTable;
@@ -60,41 +60,42 @@ public class GradesController implements StageAware {
     private final ObservableList<GradeRow> shownRows = FXCollections.observableArrayList();
 
     private Stage stage;
-    private boolean teacher = true;
-    private int currentStudentId = 4;
+    private boolean teacher;
+    private int currentStudentId;
+    private User currentUser;
+    private boolean updatingControls = false;
 
     @FXML
     private void initialize() {
+        currentUser = Session.getCurrentUser();
+
         assignmentColumn.setCellValueFactory(new PropertyValueFactory<>("assignmentName"));
         studentColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
         dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
         scoreColumn.setCellValueFactory(new PropertyValueFactory<>("scoreText"));
-        weightColumn.setCellValueFactory(
-                new PropertyValueFactory<>("coursePercentText")
-        );
+        weightColumn.setCellValueFactory(new PropertyValueFactory<>("coursePercentText"));
 
         gradesTable.setItems(shownRows);
         gradesTable.setEditable(true);
 
         scoreColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        scoreColumn.setOnEditCommit(event -> saveScore(
-                event.getRowValue(),
-                event.getNewValue()
-        ));
+        scoreColumn.setOnEditCommit(event -> saveScore(event.getRowValue(),
+                event.getNewValue()));
 
-        viewByComboBox.setItems(FXCollections.observableArrayList(
-                ViewMode.TEACHER_BY_STUDENT,
-                ViewMode.TEACHER_BY_ASSIGNMENT
-        ));
-        viewByComboBox.getSelectionModel().selectFirst();
-        userTypeComboBox.setItems(FXCollections.observableArrayList(
-                "Teacher",
-                "Student"
-        ));
-        userTypeComboBox.getSelectionModel().selectFirst();
+        if (currentUser == null) {
+            teacher = false;
+            changeView();
+            return;
+        }
 
-        userTypeComboBox.setValue("Teacher");
-        viewByComboBox.setValue(ViewMode.TEACHER_BY_STUDENT);
+        currentStudentId = currentUser.getUserId();
+        teacher = "TEACHER".equalsIgnoreCase(currentUser.getRole());
+
+        if (teacher) {
+            viewByComboBox.setItems(FXCollections.observableArrayList(ViewMode.TEACHER_BY_STUDENT,
+                    ViewMode.TEACHER_BY_ASSIGNMENT));
+            viewByComboBox.getSelectionModel().selectFirst();
+        }
 
         changeView();
         refreshView();
@@ -108,6 +109,11 @@ public class GradesController implements StageAware {
     private void refreshView() {
         allRows.clear();
 
+        if (getSelectedMode() == ViewMode.LOGGED_OUT) {
+            shownRows.clear();
+            return;
+        }
+
         try (Connection connection = DatabaseConnection.getConnection()) {
             GradeDao gradeDao = new GradeDao(connection);
             AssignmentDao assignmentDao = new AssignmentDao(connection);
@@ -119,9 +125,23 @@ public class GradesController implements StageAware {
             List<Enrollment> enrollments = enrollmentDao.findAll();
             List<Grade> grades = gradeDao.findAll();
 
-            Map<Integer, Double> classPointTotals = new HashMap<>();
+            List<Assignment> authorizedAssignments = new ArrayList<>();
+            Map<Integer, Course> authorizedCourses = new HashMap<>();
 
             for (Assignment assignment : assignments) {
+                Course course = classDao.findById(assignment.getClassId());
+
+                if (course == null || !canAccessCourse(course, enrollments)) {
+                    continue;
+                }
+
+                authorizedAssignments.add(assignment);
+                authorizedCourses.put(course.getClassId(), course);
+            }
+
+            Map<Integer, Double> classPointTotals = new HashMap<>();
+
+            for (Assignment assignment : authorizedAssignments) {
                 int classId = assignment.getClassId();
 
                 double currentTotal = classPointTotals.getOrDefault(classId, 0.0);
@@ -132,20 +152,24 @@ public class GradesController implements StageAware {
                 );
             }
 
-            for (Assignment assignment : assignments) {
+            for (Assignment assignment : authorizedAssignments) {
+                Course course = authorizedCourses.get(assignment.getClassId());
 
-                Course course = classDao.findById(assignment.getClassId());
-
-                // Find every student enrolled in this assignment's class
                 for (Enrollment enrollment : enrollments) {
+                    if (!enrollment.isActive() || enrollment.getClassId() != assignment.getClassId()) {
+                        continue;
+                    }
 
-                    if (enrollment.getClassId() != assignment.getClassId()) {
+                    if (!teacher && enrollment.getStudentId() != currentStudentId) {
                         continue;
                     }
 
                     User student = userDao.findById(enrollment.getStudentId());
 
-                    // Grade may not exist yet
+                    if (student == null) {
+                        continue;
+                    }
+
                     Grade grade = null;
 
                     for (Grade existingGrade : grades) {
@@ -157,21 +181,18 @@ public class GradesController implements StageAware {
                         }
                     }
 
-                    double totalClassPoints =
-                            classPointTotals.getOrDefault(assignment.getClassId(), 0.0);
+                    double totalClassPoints = classPointTotals.getOrDefault(assignment.getClassId(), 0.0);
 
                     double coursePercent = 0.0;
 
                     if (totalClassPoints > 0) {
-                        coursePercent =
-                                assignment.getPointsPossible()
-                                        / totalClassPoints
-                                        * 100.0;
+                        coursePercent = assignment.getPointsPossible() / totalClassPoints * 100.0;
                     }
 
                     GradeRow row = new GradeRow(
                             grade,
                             assignment.getAssignmentId(),
+                            assignment.getClassId(),
                             assignment.getTitle(),
                             assignment.getDueDate(),
                             assignment.getPointsPossible(),
@@ -188,16 +209,17 @@ public class GradesController implements StageAware {
 
             fillSelectionBox();
             showSelectedRows();
-            statusLabel.setText("Grades refreshed");
 
         } catch (SQLException exception) {
-            statusLabel.setText("Could not load grades");
             exception.printStackTrace();
         }
     }
 
     @FXML
     private void handleViewByChanged() {
+        if (updatingControls) {
+            return;
+        }
         changeView();
         fillSelectionBox();
         showSelectedRows();
@@ -205,13 +227,76 @@ public class GradesController implements StageAware {
 
     @FXML
     private void handleSelectionChanged() {
+        if (updatingControls) {
+            return;
+        }
+        showSelectedRows();
+    }
+
+    @FXML
+    private void handleClassSelectionChanged() {
+        if (updatingControls) {
+            return;
+        }
+
+        ViewMode mode = getSelectedMode();
+
+        if (mode == ViewMode.TEACHER_BY_STUDENT
+                || mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
+            fillSelectionBox();
+        }
         showSelectedRows();
     }
 
     private void changeView() {
         ViewMode mode = getSelectedMode();
+
         boolean assignmentView = mode == ViewMode.TEACHER_BY_ASSIGNMENT;
         boolean studentView = mode == ViewMode.STUDENT;
+        boolean loggedOut = mode == ViewMode.LOGGED_OUT;
+
+        if (loggedOut) {
+            studentColumn.setVisible(false);
+            assignmentColumn.setVisible(false);
+            dueDateColumn.setVisible(false);
+            weightColumn.setVisible(false);
+            selectionPromptLabel.setVisible(false);
+            selectionPromptLabel.setManaged(false);
+            selectionComboBox.setVisible(false);
+            selectionComboBox.setManaged(false);
+            viewByComboBoxLabel.setVisible(false);
+            viewByComboBoxLabel.setManaged(false);
+            viewByComboBox.setVisible(false);
+            viewByComboBox.setManaged(false);
+            classSelectionPromptLabel.setVisible(false);
+            classSelectionPromptLabel.setManaged(false);
+            classSelectionComboBox.setVisible(false);
+            classSelectionComboBox.setManaged(false);
+            overallGradeLabel.setVisible(false);
+            overallGradeLabel.setManaged(false);
+            gradesTable.setVisible(false);
+            gradesTable.setManaged(false);
+            tableTitleLabel.setVisible(false);
+            tableTitleLabel.setManaged(false);
+            topGradesLabel.setVisible(true);
+            topGradesLabel.setManaged(true);
+            loggedOutLabel.setVisible(true);
+            loggedOutLabel.setManaged(true);
+            topGradesLabel.setText("No Grades Shown");
+
+            return;
+        }
+        gradesTable.setVisible(true);
+        gradesTable.setManaged(true);
+
+        tableTitleLabel.setVisible(true);
+        tableTitleLabel.setManaged(true);
+
+        topGradesLabel.setVisible(true);
+        topGradesLabel.setManaged(true);
+
+        loggedOutLabel.setVisible(false);
+        loggedOutLabel.setManaged(false);
 
         studentColumn.setVisible(assignmentView);
         assignmentColumn.setVisible(!assignmentView);
@@ -226,32 +311,44 @@ public class GradesController implements StageAware {
         viewByComboBoxLabel.setManaged(!studentView);
         viewByComboBox.setVisible(!studentView);
         viewByComboBox.setManaged(!studentView);
-        classSelectionPromptLabel.setVisible(studentView);
-        classSelectionPromptLabel.setManaged(studentView);
-        classSelectionComboBox.setVisible(studentView);
-        classSelectionComboBox.setManaged(studentView);
+
+        boolean showClassSelection = studentView || mode == ViewMode.TEACHER_BY_STUDENT
+                        || mode == ViewMode.TEACHER_BY_ASSIGNMENT;
+
+        classSelectionPromptLabel.setVisible(showClassSelection);
+        classSelectionPromptLabel.setManaged(showClassSelection);
+        classSelectionComboBox.setVisible(showClassSelection);
+        classSelectionComboBox.setManaged(showClassSelection);
+
+        classSelectionPromptLabel.setText("Class");
+
         weightColumn.setVisible(studentView);
+
         overallGradeLabel.setVisible(studentView);
         overallGradeLabel.setManaged(studentView);
 
         if (assignmentView) {
             selectionPromptLabel.setText("Assignment");
             tableTitleLabel.setText("Grades by assignment");
-            topGradesLabel.setText("Grades");
+            topGradesLabel.setText("Grades of " + viewByComboBox.getValue());
+
         } else if (studentView) {
             tableTitleLabel.setText("My grades");
+
             try (Connection connection = DatabaseConnection.getConnection()) {
                 UserDao userDao = new UserDao(connection);
+
                 topGradesLabel.setText("Grades For: " + userDao.findById(currentStudentId).getUsername());
+
             } catch (SQLException exception) {
-                statusLabel.setText("Could not load name");
                 topGradesLabel.setText("Grades For: null");
                 exception.printStackTrace();
             }
+
         } else {
             selectionPromptLabel.setText("Student");
             tableTitleLabel.setText("Grades by student");
-            topGradesLabel.setText("Grades");
+            topGradesLabel.setText("Grades of Students");
         }
 
         gradesTable.setEditable(teacher);
@@ -259,40 +356,71 @@ public class GradesController implements StageAware {
     }
 
     private void fillSelectionBox() {
-        String oldSelection = selectionComboBox.getValue();
-        List<String> choices = new ArrayList<>();
-        List<String> classChoices = new ArrayList<>();
-        ViewMode mode = getSelectedMode();
+        updatingControls = true;
 
-        for (GradeRow row : allRows) {
-            String choice = null;
-            String classChoice = null;
+        try {
+            String oldSelection = selectionComboBox.getValue();
+            String oldClassSelection = classSelectionComboBox.getValue();
 
-            if (mode == ViewMode.TEACHER_BY_STUDENT) {
-                choice = row.getStudentName();
-            } else if (mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
-                choice = row.getAssignmentName();
-            } else if (mode == ViewMode.STUDENT) {
-                classChoice = row.getCourseName();
+            List<String> choices = new ArrayList<>();
+            List<String> classChoices = new ArrayList<>();
+            ViewMode mode = getSelectedMode();
+
+            if (mode == ViewMode.STUDENT || mode == ViewMode.TEACHER_BY_STUDENT
+                    || mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
+
+                for (GradeRow row : allRows) {
+                    String courseName = row.getCourseName();
+
+                    if (!classChoices.contains(courseName)) {
+                        classChoices.add(courseName);
+                    }
+                }
+
+                classSelectionComboBox.setItems(FXCollections.observableArrayList(classChoices));
+
+                if (oldClassSelection != null && classChoices.contains(oldClassSelection)) {
+                    classSelectionComboBox.setValue(oldClassSelection);
+
+                } else if (!classChoices.isEmpty()) {
+                    classSelectionComboBox.getSelectionModel().selectFirst();
+                }
+            } else {
+                classSelectionComboBox.getItems().clear();
             }
 
-            if (choice != null && !choices.contains(choice)) {
-                choices.add(choice);
-            }
-            if (classChoice != null && !classChoices.contains(classChoice)) {
-                classChoices.add(classChoice);
-            }
-        }
+            String selectedClass = classSelectionComboBox.getValue();
 
-        selectionComboBox.setItems(FXCollections.observableArrayList(choices));
-        classSelectionComboBox.setItems(FXCollections.observableArrayList(classChoices));
+            for (GradeRow row : allRows) {
+                String choice = null;
 
-        if (oldSelection != null && choices.contains(oldSelection)) {
-            selectionComboBox.setValue(oldSelection);
-        } else if (!choices.isEmpty()) {
-            selectionComboBox.getSelectionModel().selectFirst();
-        } else if (!classChoices.isEmpty()) {
-            classSelectionComboBox.getSelectionModel().selectFirst();
+                if (mode == ViewMode.TEACHER_BY_STUDENT) {
+                    if (row.getCourseName().equals(selectedClass)) {
+                        choice = row.getStudentName();
+                    }
+
+                } else if (mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
+                    if (row.getCourseName().equals(selectedClass)) {
+                        choice = row.getAssignmentName();
+                    }
+                }
+
+                if (choice != null && !choices.contains(choice)) {
+                    choices.add(choice);
+                }
+            }
+
+            selectionComboBox.setItems(FXCollections.observableArrayList(choices));
+
+            if (oldSelection != null && choices.contains(oldSelection)) {
+                selectionComboBox.setValue(oldSelection);
+
+            } else if (!choices.isEmpty()) {
+                selectionComboBox.getSelectionModel().selectFirst();
+            }
+
+        } finally {
+            updatingControls = false;
         }
     }
 
@@ -307,17 +435,20 @@ public class GradesController implements StageAware {
             boolean show = false;
 
             if (mode == ViewMode.STUDENT) {
-                show = row.getStudentId() == currentStudentId
-                        && (selectedClass == null
+                show = row.getStudentId() == currentStudentId && (selectedClass == null
                         || row.getCourseName().equals(selectedClass));
 
             } else if (mode == ViewMode.TEACHER_BY_STUDENT) {
-                show = selected == null
-                        || row.getStudentName().equals(selected);
+                boolean correctClass = selectedClass == null || row.getCourseName().equals(selectedClass);
+                boolean correctStudent = selected == null || row.getStudentName().equals(selected);
+
+                show = correctClass && correctStudent;
 
             } else if (mode == ViewMode.TEACHER_BY_ASSIGNMENT) {
-                show = selected == null
-                        || row.getAssignmentName().equals(selected);
+                boolean correctClass = selectedClass == null || row.getCourseName().equals(selectedClass);
+                boolean correctAssignment = selected == null || row.getAssignmentName().equals(selected);
+
+                show = correctClass && correctAssignment;
             }
 
             if (show) {
@@ -329,8 +460,56 @@ public class GradesController implements StageAware {
         updateOverallGrade();
     }
 
+    /**
+     * Checks whether the logged-in user is allowed to access a course.
+     */
+    private boolean canAccessCourse(Course course, List<Enrollment> enrollments) {
+        if (currentUser == null || course == null) {
+            return false;
+        }
+
+        if (teacher) {
+            return course.getTeacherId() == currentUser.getUserId();
+        }
+
+        for (Enrollment enrollment : enrollments) {
+            if (enrollment.isActive()
+                    && enrollment.getStudentId() == currentStudentId
+                    && enrollment.getClassId() == course.getClassId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Re-checks teacher ownership before a grade is written to the database.
+     */
+    private boolean canEditGradeRow(GradeRow row) throws SQLException {
+        if (!teacher || currentUser == null || row == null) {
+            return false;
+        }
+
+        ClassDAO classDao = new ClassDAO();
+        Course course = classDao.findById(row.getClassId());
+
+        return course != null && course.getTeacherId() == currentUser.getUserId();
+    }
+
     private void saveScore(GradeRow row, String text) {
         if (!teacher) {
+            gradesTable.refresh();
+            return;
+        }
+
+        try {
+            if (!canEditGradeRow(row)) {
+                gradesTable.refresh();
+                return;
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
             gradesTable.refresh();
             return;
         }
@@ -338,10 +517,6 @@ public class GradesController implements StageAware {
         Double score = readScore(text);
 
         if (score == null || score < 0 || score > row.getPointsPossible()) {
-            statusLabel.setText(
-                    "Enter a score from 0 to " + row.getPointsPossible()
-            );
-
             gradesTable.refresh();
             return;
         }
@@ -350,28 +525,18 @@ public class GradesController implements StageAware {
             GradeDao gradeDao = new GradeDao(connection);
 
             if (row.getGrade() == null) {
-
-                Grade grade = new Grade(
-                        row.getEnrollmentId(),
-                        row.getAssignmentId(),
-                        score,
-                        row.getCoursePercent() / 100.0
-                );
-
+                Grade grade = new Grade(row.getEnrollmentId(), row.getAssignmentId(), score,
+                        row.getCoursePercent() / 100.0);
                 gradeDao.insert(grade);
 
             } else {
-
                 row.getGrade().setGrade(score);
-
                 gradeDao.update(row.getGrade());
             }
 
-            statusLabel.setText("Score saved");
             refreshView();
 
         } catch (SQLException exception) {
-            statusLabel.setText("Could not save score");
             exception.printStackTrace();
             gradesTable.refresh();
         }
@@ -387,12 +552,6 @@ public class GradesController implements StageAware {
         double pointsPossible = 0.0;
 
         for (GradeRow row : shownRows) {
-
-            // Ignore assignments that have not been graded yet
-            if (row.getGrade() == null) {
-                continue;
-            }
-
             pointsEarned += row.getGrade().getGrade();
             pointsPossible += row.getPointsPossible();
         }
@@ -402,16 +561,10 @@ public class GradesController implements StageAware {
             return;
         }
 
-        double overallPercent =
-                pointsEarned / pointsPossible * 100.0;
+        double overallPercent = pointsEarned / pointsPossible * 100.0;
 
         overallGradeLabel.setText(
-                String.format(
-                        "Overall Grade: %.2f%%  (%.1f / %.1f)",
-                        overallPercent,
-                        pointsEarned,
-                        pointsPossible
-                )
+                String.format("Overall Grade: %.2f%%  (%.1f / %.1f)", overallPercent, pointsEarned, pointsPossible)
         );
     }
 
@@ -434,44 +587,21 @@ public class GradesController implements StageAware {
     }
 
     private ViewMode getSelectedMode() {
-        ViewMode mode = viewByComboBox.getValue();
+        if (Session.isLoggedIn()) {
+            if (!teacher) {
+                return ViewMode.STUDENT;
+            }
 
-        if (mode == null) {
-            return ViewMode.TEACHER_BY_STUDENT;
-        }
+            ViewMode mode = viewByComboBox.getValue();
 
-        return mode;
-    }
+            if (mode == null) {
+                return ViewMode.TEACHER_BY_STUDENT;
+            }
 
-    private String getSelectedUserMode() {
-        String mode = userTypeComboBox.getValue();
-
-        if (mode == null) {
-            return "Teacher";
-        }
-
-        return mode;
-    }
-
-    public void handleViewByUserType() {
-        String mode = getSelectedUserMode();
-
-        if ("Teacher".equals(mode)) {
-            viewByComboBox.setItems(FXCollections.observableArrayList(
-                    ViewMode.TEACHER_BY_STUDENT,
-                    ViewMode.TEACHER_BY_ASSIGNMENT
-            ));
-            this.teacher = true;
+            return mode;
         } else {
-            viewByComboBox.setItems(FXCollections.observableArrayList(
-                    ViewMode.STUDENT
-            ));
-            this.teacher = false;
+            return ViewMode.LOGGED_OUT;
         }
-
-        viewByComboBox.getSelectionModel().selectFirst();
-        changeView();
-        refreshView();
     }
 
     @Override
@@ -490,6 +620,7 @@ public class GradesController implements StageAware {
     public static class GradeRow {
         private final Grade grade;
         private final int assignmentId;
+        private final int classId;
         private final String assignmentName;
         private final LocalDate dueDate;
         private final double pointsPossible;
@@ -502,6 +633,7 @@ public class GradesController implements StageAware {
         public GradeRow(
                 Grade grade,
                 int assignmentId,
+                int classId,
                 String assignmentName,
                 LocalDate dueDate,
                 double pointsPossible,
@@ -513,6 +645,7 @@ public class GradesController implements StageAware {
         ) {
             this.grade = grade;
             this.assignmentId = assignmentId;
+            this.classId = classId;
             this.assignmentName = assignmentName;
             this.dueDate = dueDate;
             this.pointsPossible = pointsPossible;
@@ -537,6 +670,10 @@ public class GradesController implements StageAware {
 
         public int getAssignmentId() {
             return assignmentId;
+        }
+
+        public int getClassId() {
+            return classId;
         }
 
         public String getAssignmentName() {

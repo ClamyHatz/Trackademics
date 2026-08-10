@@ -42,9 +42,6 @@
                            style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17263a;"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="statusLabel"
-                       text="Ready"
-                       style="-fx-font-size: 12px; -fx-text-fill: #637286;"/>
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="12.0">
                 <!-- Selection box that you choose what you are viewing by -->
@@ -65,12 +62,7 @@
                        style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
                 <ComboBox fx:id="classSelectionComboBox"
                           prefWidth="260.0"
-                          onAction="#handleSelectionChanged"/>
-                <!-- Selection box that you choose what you are viewing by (UserType)-->
-                <Label text="User Type:" style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
-                <ComboBox fx:id="userTypeComboBox"
-                          prefWidth="170.0"
-                          onAction="#handleViewByUserType"/>
+                          onAction="#handleClassSelectionChanged"/>
                 <Region HBox.hgrow="ALWAYS"/>
             </HBox>
         </VBox>
@@ -83,6 +75,10 @@
             </padding>
 
             <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <!-- Grades Label -->
+                <Label fx:id= "loggedOutLabel"
+                       text="User Logged Out"
+                       style="-fx-font-size: 35px; -fx-font-weight: bold; -fx-text-fill: #17263a;"/>
                 <!-- Over All Grade -->
                 <Label fx:id="overallGradeLabel"
                        text="Overall Grade: —"
