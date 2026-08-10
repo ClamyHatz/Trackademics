@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -35,16 +32,6 @@
     <PasswordField fx:id="confirmPasswordField"
                    promptText="Confirm password"
                    maxWidth="260" />
-
-    <ChoiceBox fx:id="roleChoiceBox"
-               prefWidth="260">
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <String fx:value="STUDENT" />
-                <String fx:value="TEACHER" />
-            </FXCollections>
-        </items>
-    </ChoiceBox>
 
     <Button text="Register"
             prefWidth="260"

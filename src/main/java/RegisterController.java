@@ -3,7 +3,6 @@ import java.sql.SQLException;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -12,15 +11,20 @@ import javafx.stage.Stage;
 /**
  * Controls the registration screen.
  *
- * Reads the username, password, confirm password, and role, then asks
- * AuthService to register the account. On success it shows an alert and returns
- * to the login screen. Failures show an inline message and an alert.
+ * Reads the username, password, and confirm password, then asks AuthService to
+ * register the account. New accounts are always students; teacher accounts are
+ * seeded, so no one can register themselves as a teacher. On success it shows an
+ * alert and returns to the login screen. Failures show an inline message and an
+ * alert.
  *
  * @author Bay Shahryar
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/9/26
  */
 public class RegisterController implements StageAware {
+
+    /** New registrations are always students. */
+    private static final String DEFAULT_ROLE = "STUDENT";
 
     private Stage stage;
 
@@ -32,9 +36,6 @@ public class RegisterController implements StageAware {
 
     @FXML
     private PasswordField confirmPasswordField;
-
-    @FXML
-    private ChoiceBox<String> roleChoiceBox;
 
     @FXML
     private Label messageLabel;
@@ -57,13 +58,12 @@ public class RegisterController implements StageAware {
         String username = usernameField.getText();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
-        String role = roleChoiceBox.getValue();
 
         AuthResult result;
         try {
             Connection connection = DatabaseConnection.getConnection();
             AuthService authService = new AuthService(new UserDao(connection));
-            result = authService.register(username, password, confirmPassword, role);
+            result = authService.register(username, password, confirmPassword, DEFAULT_ROLE);
             connection.close();
         } catch (SQLException exception) {
             showAlert(Alert.AlertType.ERROR, "Registration Error",
