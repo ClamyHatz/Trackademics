@@ -56,4 +56,13 @@ Issue if the team later decides to attempt it for extra credit._
 ./gradlew run        # launch the app
 ./gradlew test       # run the test suite
 ```
-Requirements: JDK <version>, JavaFX <version>. Any setup notes go here.
+## Log-in Credentials
+| username | password | account type |
+|------|-----|---------------------|
+| Prf. Stewart | password | TEACHER |
+| Dr. Doctor | doctor | TEACHER |
+| Bob | password1 | STUDENT |
+| Sally | CoolThing72 | STUDENT |
+| Charlie | passwordz | STUDENT|
+| Joe | SomethingIG | STUDENT |
+Requirements: JDK <version>, JavaFX <version>.

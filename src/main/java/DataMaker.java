@@ -19,6 +19,7 @@ IT HAS ALREADY BEEN USED SO DON'T USE IT.
 
 public class DataMaker {
 
+
     private static void addDemoData(GradeDao gradeDao, UserDao userDao, ClassDAO classDao,
                                     AssignmentDao assignmentDao, EnrollmentDAO enrollmentDao)
             throws SQLException {

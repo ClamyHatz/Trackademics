@@ -12,6 +12,7 @@ import javafx.stage.Stage;
  *
  * @author Bay Shahryar
  * @author Estefan Vicencio
+ * @author Lily Keus
  * @version 0.2.0
  * @since 8/10/26
  */
