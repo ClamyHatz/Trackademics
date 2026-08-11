@@ -6,8 +6,8 @@ import java.util.List;
  * Handles the database work for grades.
  *
  * @author Lily Keus
- * @version 0.1.0
- * @since 8/3/2026
+ * @version 0.2.0
+ * @since 8/10/2026
  */
 
 public class GradeDao {
@@ -15,13 +15,18 @@ public class GradeDao {
 
     /**
      * Gives the DAO a database connection.
+     *
+     * @param connection the database connection used by this DAO
      */
     public GradeDao(Connection connection) {
         this.connection = connection;
     }
 
     /**
-     * Adds a grade to the database.
+     * Adds a grade to the database and assigns the generated ID to the Grade object.
+     *
+     * @param grade the grade to add to the database
+     * @throws SQLException if a database error occurs or no generated ID is returned
      */
     public void insert(Grade grade) throws SQLException {
         String sql = "INSERT INTO grades "
@@ -49,6 +54,10 @@ public class GradeDao {
 
     /**
      * Finds a grade by its ID.
+     *
+     * @param gradeId the ID of the grade to find
+     * @return the matching Grade object, or null if no grade is found
+     * @throws SQLException if a database error occurs
      */
     public Grade findById(int gradeId) throws SQLException {
         String sql = "SELECT grade_id, enrollment_id, assignment_id, grade, weight "
@@ -78,6 +87,9 @@ public class GradeDao {
 
     /**
      * Gets every grade from the database.
+     *
+     * @return a list containing all grades in the database
+     * @throws SQLException if a database error occurs
      */
     public List<Grade> findAll() throws SQLException {
         String sql = "SELECT grade_id, enrollment_id, assignment_id, grade, weight "
@@ -98,7 +110,11 @@ public class GradeDao {
     }
 
     /**
-     * Gets every grade for one enrollment.
+     * Gets every grade associated with a specific enrollment.
+     *
+     * @param enrollmentId the enrollment ID used to find grades
+     * @return a list of grades associated with the enrollment
+     * @throws SQLException if a database error occurs
      */
     public List<Grade> findByEnrollmentId(int enrollmentId) throws SQLException {
 
@@ -125,7 +141,11 @@ public class GradeDao {
     }
 
     /**
-     * Gets every grade for one assignment.
+     * Gets every grade associated with a specific assignment.
+     *
+     * @param assignmentId the assignment ID used to find grades
+     * @return a list of grades associated with the assignment
+     * @throws SQLException if a database error occurs
      */
     public List<Grade> findByAssignmentId(int assignmentId) throws SQLException {
 
@@ -152,7 +172,10 @@ public class GradeDao {
     }
 
     /**
-     * Updates a grade in the database.
+     * Updates an existing grade in the database.
+     *
+     * @param grade the grade containing the updated values
+     * @throws SQLException if a database error occurs or the grade does not exist
      */
     public void update(Grade grade) throws SQLException {
         String sql = "UPDATE grades SET "
@@ -181,6 +204,9 @@ public class GradeDao {
 
     /**
      * Deletes a grade from the database.
+     *
+     * @param gradeId the ID of the grade to delete
+     * @throws SQLException if a database error occurs or the grade does not exist
      */
     public void delete(int gradeId) throws SQLException {
         String sql = "DELETE FROM grades "
@@ -198,7 +224,11 @@ public class GradeDao {
     }
 
     /**
-     * Creates a Grade object from the current result-set row.
+     * Creates a Grade object from the current row of a result set.
+     *
+     * @param result the result set containing grade data
+     * @return a Grade object created from the current result-set row
+     * @throws SQLException if an error occurs while reading the result set
      */
     private Grade makeGrade(ResultSet result) throws SQLException {
         int gradeId = result.getInt("grade_id");

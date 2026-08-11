@@ -2,8 +2,13 @@ import javafx.fxml.FXML;
 import javafx.stage.Stage;
 
 /**
- * Controls navigation from the home page.
+ * Controls the home scene.
+ *
+ * @author Lily Keus
+ * @version 0.1.0
+ * @since 8/5/2026
  */
+
 public class HomeController implements StageAware {
 
     private Stage stage;
