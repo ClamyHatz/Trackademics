@@ -144,11 +144,16 @@ public class GradesController implements StageAware {
             List<Enrollment> enrollments = enrollmentDao.findAll();
             List<Grade> grades = gradeDao.findAll();
 
+            Map<Integer, Course> allCourses = new HashMap<>();
+            for (Course course : classDao.findAll()) {
+                allCourses.put(course.getClassId(), course);
+            }
+
             List<Assignment> authorizedAssignments = new ArrayList<>();
             Map<Integer, Course> authorizedCourses = new HashMap<>();
 
             for (Assignment assignment : assignments) {
-                Course course = classDao.findById(assignment.getClassId());
+                Course course = allCourses.get(assignment.getClassId());
 
                 if (course == null || !canAccessCourse(course, enrollments)) {
                     continue;
