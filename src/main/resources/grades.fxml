@@ -54,14 +54,14 @@
                        text="Choose Class"
                        style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
                 <ComboBox fx:id="classSelectionComboBox"
-                          prefWidth="120.0"
+                          prefWidth="180.0"
                           onAction="#handleClassSelectionChanged"/>
                 <!-- Selection box that you choose which student you are viewing by -->
                 <Label fx:id="selectionPromptLabel"
                        text="Student"
                        style="-fx-font-weight: bold; -fx-text-fill: #26384d;"/>
                 <ComboBox fx:id="selectionComboBox"
-                          prefWidth="120.0"
+                          prefWidth="180.0"
                           onAction="#handleSelectionChanged"/>
                 <Region HBox.hgrow="ALWAYS"/>
             </HBox>
@@ -106,4 +106,15 @@
             </VBox>
         </GridPane>
     </center>
+    <bottom>
+        <!-- Status Label for Error Response -->
+        <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: white; -fx-border-color: #dfe5ec transparent transparent transparent;">
+            <padding>
+                <Insets top="10.0" right="28.0" bottom="10.0" left="28.0"/>
+            </padding>
+            <Label fx:id="statusLabel"
+                   text=""
+                   style="-fx-font-size: 13px; -fx-text-fill: #b3261e;"/>
+        </HBox>
+    </bottom>
 </BorderPane>

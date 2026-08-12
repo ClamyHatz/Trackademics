@@ -21,8 +21,8 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 |-------|-------|-----------------|--------|------------|-------|--------------------|-------------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 #20 | bay/user-dao-impl | #2 #25 #32 #35 | Notifications/alerts | in-progress |
 | 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment, ayoung/enrollment-dao | #16 #24 #30 #40 | Data binding (ObservableList / Property) | in-progress |
-| 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments | #5 #26 #27 #31 | TableView populated with live data | planned     |
-| 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 #38 | lily/grade-viewer | #28 #29 #33 #37 | TableView / ListView populated with live data | planned     |
+| 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments | #5 #26 #27 #31 | TableView populated with live data | complete     |
+| 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 #37 #39 | lily/grade-viewer, lily/grade-var-patch, lily/grade-viewer-DAO-and-Test, lily/home-page, lily/fake-data-insertion, lily/fxml-visuals, lily/AI-Tests-And-Code-Review | #28 #29 #34 #38 #43 #51 #54 | TableView / ListView populated with live data | complete |
 
 _Status values: planned · in-progress · complete_
 
@@ -39,6 +39,14 @@ Issue if the team later decides to attempt it for extra credit._
 | #24 | achoi0123 | ClamyHatz | | merged |
 | #30 | achoi0123 | stef-VnV | | merged |
 | #40 | achoi0123 | ClamyHatz | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/40) | merged |
+| #28 | ClamyHatz | achoi0123 |  | merged |
+| #29 | ClamyHatz | ClamyHatz |  |merged  |
+| #34 | ClamyHatz | baycs |  | merged |
+| #38 | ClamyHatz | stef-VnV |  | merged |
+| #43 | ClamyHatz | stef-VnV |  | merged |
+| #43  | ClamyHatz | achoi0123 | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/44#issue-5096052086) | merged |
+| #51 | ClamyHatz | stef-VnV |  | merged |
+| #54 | ClamyHatz |  | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/54) |  |
 |  |  |  |  |  |
 
 ## AI Usage Log
@@ -65,4 +73,5 @@ Issue if the team later decides to attempt it for extra credit._
 | Sally | CoolThing72 | STUDENT |
 | Charlie | passwordz | STUDENT|
 | Joe | SomethingIG | STUDENT |
+
 Requirements: JDK <version>, JavaFX <version>.

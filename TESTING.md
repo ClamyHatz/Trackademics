@@ -84,3 +84,96 @@ adjudication:
 
 Most findings were out of scope or misread the intentional design. I accepted the
 two small fixes that genuinely improved the code.
+
+
+
+
+# Testing — Grades Slice (Lily Keus)
+
+**Prompt Used:**
+
+Attached are Grade, GradeDao, GradeController, grades.fxml, and GradeDaoTest.
+I want you to take GradeDaoTest and make a new file GradeTest, which will test 
+all other files attached. It needs to cover "DAO + logic, including an edge 
+case" and "at least one TestFX UI test." Make these tests as critical as 
+possible. All refrenced files exist. Ask for any needed files, and any needed 
+questions before you draft the unit tests.
+
+**I then got asked:**
+- Should GradeTest.java replace GradeDaoTest, or should both remain in the 
+project? I can make GradeTest comprehensive enough that GradeDaoTest 
+becomes redundant.
+- Create one file for all tests but separate types with large comments.
+
+- May I use reflection to directly test private controller logic such as 
+readScore(), updateOverallGrade(), and canAccessCourse()? If your instructor 
+discourages reflection, I’ll test those behaviors strictly through the UI/public 
+effects instead.
+- We have not learned reflections so it's best to avoid it.
+
+**I then attached the following files upon it's request**
+
+- build.gradle
+- Session.java
+- User.java + UserDao.java
+- DatabaseConnection.java
+- Assignment.java + AssignmentDao.java
+- Enrollment.java + EnrollmentDAO.java
+- Course.java + ClassDAO.java
+- StageAware.java
+- SceneFactory.java
+- SceneType.java
+
+***Output Evaluation***
+
+**What it produced**
+
+A 19 test Unit test covering DAO + logic, including an edge case and one JavaFX UI test.
+
+**What it got Wrong**
+
+There're only 3 things that it did that can be considered wrong.
+
+1, it mainly tested functions that the user would use and left some of the more 
+mechanical things such as `fillSelectionBox()` untested. I did not ask for a full 
+on mechanical test, though I did request "Make these tests as critical as possible," 
+but as I did not specifically ask for them they were not generated, thus in my next 
+prompt they were requested:"Can you add some tests for the more mechanical side of 
+GradeController? There are a lot of commands in that one and only 3 tests were given 
+for the whole file." It then generated 7 more tests that all looked good and passed, 
+but they still didn't cover some of the more mechanical bits. I did not request them 
+in the prompt, and adding any more tests would be pointless as the AI would most likely 
+keep generating low value tests.
+
+2, it put all the tests into one file. I *did* request this, but with last prompt it 
+made the total tests 26 which is a lot. I requested it to be made this way, so I 
+wouldn't fill up the tests folder making it look more disorganized, but that backfired 
+and made the test itself less organized.
+
+3, this is less of a coding error and more for style. It added javadoc comments to the 
+tops of the first 3 items, `start` `setUpDatabase` `tearDownDatabase` but left every 
+other test / method un-commented on, and that disorganization is simply annoying. 
+Though it did a good job on separating each test field with a banner comments.
+
+**What I Changed**
+
+I removed the 3 comments from the top 3 methods as that was easier than adding more 
+comments to the rest. I did not add more tests to cover the mechanical bit of 
+GradeController as it seemed to work perfectly during a build test, where I manually 
+tested many possible ways to break it. I prefer testing with the program actually running. 
+Finally, I did not remove any tests nor split the file into multiple parts, as my worry of 
+group disorganization outweighs the file disorganization worry. And having many tests, though 
+some low value is worth having if it already exists. This is all said and left alone mainly
+because, again, I tested it myself with a running build, and put it through the ringer to 
+test ever way I could think of breaking it. And adding that on to the fact that it passed 
+all the tests the AI made,that are supposedly "as critical as possible," I felt satisfied 
+with the results of it all and concluded that no further testing was necessary.
+
+**Reflection**
+
+With a program that you can actually use and has a GUI and such having test feels less valuable.
+I can simply test everything myself with the program running. If any errors occur I can see
+what happens and what the user might see or encounter if they were using it themselves. So using
+unit tests just doesn't feel as good as using it for a program with no GUI and user interactivity.
+The test the AI generated were only partially as good as the stuff I manually did and so I mainly
+see them as backing / confirmation that what I made is good and will likely not break.

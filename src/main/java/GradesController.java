@@ -57,6 +57,7 @@ public class GradesController implements StageAware {
     @FXML private Label overallGradeLabel;
     @FXML private Label topGradesLabel;
     @FXML private Label loggedOutLabel;
+    @FXML private Label statusLabel;
 
     @FXML private ComboBox<ViewMode> viewByComboBox;
     @FXML private ComboBox<String> selectionComboBox;
@@ -125,6 +126,7 @@ public class GradesController implements StageAware {
     @FXML
     private void refreshView() {
         allRows.clear();
+        statusLabel.setText("");
 
         if (getSelectedMode() == ViewMode.LOGGED_OUT) {
             shownRows.clear();
@@ -142,11 +144,16 @@ public class GradesController implements StageAware {
             List<Enrollment> enrollments = enrollmentDao.findAll();
             List<Grade> grades = gradeDao.findAll();
 
+            Map<Integer, Course> allCourses = new HashMap<>();
+            for (Course course : classDao.findAll()) {
+                allCourses.put(course.getClassId(), course);
+            }
+
             List<Assignment> authorizedAssignments = new ArrayList<>();
             Map<Integer, Course> authorizedCourses = new HashMap<>();
 
             for (Assignment assignment : assignments) {
-                Course course = classDao.findById(assignment.getClassId());
+                Course course = allCourses.get(assignment.getClassId());
 
                 if (course == null || !canAccessCourse(course, enrollments)) {
                     continue;
@@ -226,6 +233,7 @@ public class GradesController implements StageAware {
 
         } catch (SQLException exception) {
             exception.printStackTrace();
+            statusLabel.setText("Error refreshing view: " +  exception.getMessage());
         }
     }
 
@@ -277,6 +285,7 @@ public class GradesController implements StageAware {
      */
     private void changeView() {
         ViewMode mode = getSelectedMode();
+        statusLabel.setText("");
 
         boolean assignmentView = mode == ViewMode.TEACHER_BY_ASSIGNMENT;
         boolean studentView = mode == ViewMode.STUDENT;
@@ -371,6 +380,7 @@ public class GradesController implements StageAware {
             } catch (SQLException exception) {
                 topGradesLabel.setText("Grades For: null");
                 exception.printStackTrace();
+                statusLabel.setText("Error Finding Student: " +  exception.getMessage());
             }
 
         } else {
@@ -562,12 +572,14 @@ public class GradesController implements StageAware {
         } catch (SQLException exception) {
             exception.printStackTrace();
             gradesTable.refresh();
+            statusLabel.setText("Error Saving Score: " +  exception.getMessage());
             return;
         }
 
         Double score = readScore(text);
 
         if (score == null || score < 0 || score > row.getPointsPossible()) {
+            statusLabel.setText("Entered an invalid value for score.");
             gradesTable.refresh();
             return;
         }
@@ -590,6 +602,7 @@ public class GradesController implements StageAware {
         } catch (SQLException exception) {
             exception.printStackTrace();
             gradesTable.refresh();
+            statusLabel.setText("Error Saving Score: " +  exception.getMessage());
         }
     }
 
@@ -647,6 +660,7 @@ public class GradesController implements StageAware {
         try {
             return Double.parseDouble(number);
         } catch (NumberFormatException exception) {
+            statusLabel.setText("Error Reading Score: " +  exception.getMessage());
             return null;
         }
     }
