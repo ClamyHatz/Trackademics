@@ -44,9 +44,10 @@ Issue if the team later decides to attempt it for extra credit._
 | #34 | ClamyHatz | baycs |  | merged |
 | #38 | ClamyHatz | stef-VnV |  | merged |
 | #43 | ClamyHatz | stef-VnV |  | merged |
-| #43  | ClamyHatz | achoi0123 | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/44#issue-5096052086) | merged |
+| #44 | stef-VnV | achoi0123 | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/44#issue-5096052086) | merged |
 | #51 | ClamyHatz | stef-VnV |  | merged |
-| #54 | ClamyHatz |  | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/54) |  |
+| #54 | ClamyHatz | stef-VnV | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/54) | merged |
+| #55 | ClamyHatz | stef-VnV |  | merged |
 |  |  |  |  |  |
 
 ## AI Usage Log
