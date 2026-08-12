@@ -18,6 +18,9 @@
     <Label text="Trackademics Home"
            style="-fx-font-size: 28px; -fx-font-weight: bold;" />
 
+    <Label fx:id="statusLabel"
+           style="-fx-font-size: 14px;" />
+
     <Button text="Courses"
             prefWidth="220"
             onAction="#openCourses" />
@@ -34,8 +37,14 @@
             prefWidth="220"
             onAction="#openGrades" />
 
-    <Button text="Log In"
+    <Button fx:id="loginButton"
+            text="Log In"
             prefWidth="220"
             onAction="#openLogin" />
+
+    <Button fx:id="logoutButton"
+            text="Log Out"
+            prefWidth="220"
+            onAction="#handleLogout" />
 
 </VBox>
