@@ -115,11 +115,10 @@ effects instead.
 
 - build.gradle
 - Session.java
-- User.java
+- User.java + UserDao.java
 - DatabaseConnection.java
 - Assignment.java + AssignmentDao.java
 - Enrollment.java + EnrollmentDAO.java
-- UserDao.java
 - Course.java + ClassDAO.java
 - StageAware.java
 - SceneFactory.java

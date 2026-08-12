@@ -106,4 +106,15 @@
             </VBox>
         </GridPane>
     </center>
+    <bottom>
+        <!-- Status Label for Error Response -->
+        <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-background-color: white; -fx-border-color: #dfe5ec transparent transparent transparent;">
+            <padding>
+                <Insets top="10.0" right="28.0" bottom="10.0" left="28.0"/>
+            </padding>
+            <Label fx:id="statusLabel"
+                   text=""
+                   style="-fx-font-size: 13px; -fx-text-fill: #b3261e;"/>
+        </HBox>
+    </bottom>
 </BorderPane>
