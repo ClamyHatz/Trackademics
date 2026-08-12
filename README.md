@@ -45,7 +45,7 @@ Issue if the team later decides to attempt it for extra credit._
 | #38 | ClamyHatz | stef-VnV |  | merged |
 | #43 | ClamyHatz | stef-VnV |  | merged |
 | #51 | ClamyHatz | stef-VnV |  | merged |
-| #54 | ClamyHatz |  |  |  |
+| #54 | ClamyHatz |  | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/54) |  |
 |  |  |  |  |  |
 
 ## AI Usage Log
