@@ -84,7 +84,8 @@ public class AssignmentFormController implements StageAware {
   public void initialize() {
     statusComboBox.setItems(
         FXCollections.observableArrayList(
-            "ACTIVE"));
+            "ACTIVE",
+            "INACTIVE"));
 
     statusComboBox.setValue(
         "ACTIVE");
