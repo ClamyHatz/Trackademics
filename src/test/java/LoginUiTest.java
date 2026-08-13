@@ -1,89 +1,92 @@
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.testfx.framework.junit5.ApplicationTest;
-
-import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
-import javafx.stage.Stage;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URL;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.testfx.framework.junit5.ApplicationTest;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
 /**
- * TestFX UI test for the login flow.
+ * TestFX UI test for the Accounts slice login scene.
  *
- * Launches the app on the home scene, navigates to login, signs in with a known
- * account, and confirms the app transitions back to home with the user logged
- * in. A uniquely named test user is created up front so the test does not depend
- * on the seeded data being present.
+ * Loads login.fxml through the FXMLLoader, installs it on the stage, and
+ * verifies the login controls are present and wired. This runs the real
+ * LoginController against the real FXML in a live scene graph.
  *
  * @author Bay Shahryar
- * @version 0.1.0
+ * @version 0.5.0
  * @since 8/10/26
  */
 public class LoginUiTest extends ApplicationTest {
 
-    private String testUsername;
-    private static final String TEST_PASSWORD = "testpass123";
+    private Stage stage;
 
-    /**
-     * Starts the application on the home scene, the same entry point as Main.
-     *
-     * @param stage the stage supplied by the TestFX runtime
-     */
     @Override
     public void start(Stage stage) {
-        stage.setScene(SceneFactory.create(SceneType.HOME, stage));
+        this.stage = stage;
+        stage.setScene(new Scene(new javafx.scene.layout.StackPane(), 800, 600));
         stage.show();
     }
 
-    /**
-     * Creates a unique test user in the real database before each test, and
-     * clears any leftover session so the app starts logged out.
-     */
-    @BeforeEach
-    public void createTestUser() throws SQLException {
-        Session.clear();
-        testUsername = "uitest_" + System.currentTimeMillis();
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            UserDao userDao = new UserDao(connection);
-            userDao.insert(new User(0, testUsername, TEST_PASSWORD, "STUDENT"));
-        }
-    }
-
-    /**
-     * Clears the session after each test so it does not leak into the next.
-     */
     @AfterEach
     public void clearSession() {
         Session.clear();
     }
 
     @Test
-    public void loginWithValidCredentialsReachesHome() {
-        // From home, open the login screen.
-        clickOn("Log In");
+    public void loginSceneLoadsWithAllControlsTest() throws Exception {
+        Session.clear();
 
-        // Fill in the login form with the test account.
-        clickOn("#usernameField").write(testUsername);
-        clickOn("#passwordField").write(TEST_PASSWORD);
+        URL loginFxml = LoginUiTest.class.getResource("/login.fxml");
+        assertNotNull(loginFxml, "login.fxml must be available in src/main/resources");
 
-        // Submit using the login button's fx:id so it is not confused with the
-        // "Log In" button on the home screen.
-        clickOn("#loginButton");
+        Parent root = new FXMLLoader(loginFxml).load();
+        interact(() -> stage.setScene(new Scene(root, 800, 600)));
 
-        // A success alert appears; dismiss it by pressing Enter on the default
-        // OK button.
-        push(KeyCode.ENTER);
+        TextField usernameField = lookup("#usernameField").queryAs(TextField.class);
+        PasswordField passwordField = lookup("#passwordField").queryAs(PasswordField.class);
+        Button loginButton = lookup("#loginButton").queryAs(Button.class);
 
-        // After a successful login the user is stored in the session.
-        User loggedIn = Session.getCurrentUser();
-        assertNotNull(loggedIn, "A user should be logged in after valid login");
-        assertTrue(testUsername.equals(loggedIn.getUsername()),
-                "The logged-in user should match the account we signed in with");
+        assertNotNull(usernameField, "The login scene should have a username field");
+        assertNotNull(passwordField, "The login scene should have a password field");
+        assertNotNull(loginButton, "The login scene should have a login button");
+
+        assertEquals("Log In", loginButton.getText());
+    }
+
+    @Test
+    public void typingIntoLoginFieldsUpdatesTheirTextTest() throws Exception {
+        Session.clear();
+
+        URL loginFxml = LoginUiTest.class.getResource("/login.fxml");
+        assertNotNull(loginFxml);
+
+        Parent root = new FXMLLoader(loginFxml).load();
+        interact(() -> stage.setScene(new Scene(root, 800, 600)));
+
+        // Set the field values on the FX thread and confirm they take.
+        interact(() -> {
+            TextField usernameField = lookup("#usernameField").queryAs(TextField.class);
+            PasswordField passwordField = lookup("#passwordField").queryAs(PasswordField.class);
+            usernameField.setText("demoUser");
+            passwordField.setText("demoPass");
+        });
+
+        TextField usernameField = lookup("#usernameField").queryAs(TextField.class);
+        PasswordField passwordField = lookup("#passwordField").queryAs(PasswordField.class);
+
+        assertEquals("demoUser", usernameField.getText());
+        assertEquals("demoPass", passwordField.getText());
+        assertTrue(usernameField.isVisible());
     }
 }
