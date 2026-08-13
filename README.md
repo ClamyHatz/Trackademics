@@ -19,7 +19,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 ## Team & Slice Ownership
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status      |
 |-------|-------|-----------------|--------|------------|-------|--------------------|-------------|
-| 1 — Accounts | Bay Shahryar | baycs | #1 #20 | bay/user-dao-impl | #2 #25 #32 #35 | Notifications/alerts | in-progress |
+| 1 — Accounts | Bay Shahryar | baycs | #1 #20 #21 #22 | bay/user-dao-impl, bay/auth-service, bay/login-scene, bay/register-scene, bay/home-logout, bay/testfx-login | #23 #25 #32 #35 #47 #48 #49 #52 #56 | Notifications/alerts | complete |
 | 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment, ayoung/enrollment-dao | #16 #24 #30 #40 | Data binding (ObservableList / Property) | in-progress |
 | 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments estefan/assignment-data estefan/assignment-dao estefan/assignment-scene estefan/assignment-form estefan/assignment-validation | #5 #26 #27 #31 | TableView populated with live data | complete     |
 | 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 #37 #39 | lily/grade-viewer, lily/grade-var-patch, lily/grade-viewer-DAO-and-Test, lily/home-page, lily/fake-data-insertion, lily/fxml-visuals, lily/AI-Tests-And-Code-Review | #28 #29 #34 #38 #43 #51 #54 | TableView / ListView populated with live data | complete |
@@ -55,9 +55,11 @@ Issue if the team later decides to attempt it for extra credit._
 |  |  |  |  |  |
 
 ## AI Usage Log
-- **AI-drafted tests:** <link to TESTING.md / commit> — per owner.
+- **AI-drafted tests:** see [TESTING.md](TESTING.md) — per owner.
+  - Bay Shahryar — AI-drafted UserDao and AuthService tests, curated in [TESTING.md](TESTING.md).
 - **AI code reviews:** <PR link + adjudication note> — per owner.
   - Ayoung Choi — [PR #40](https://github.com/ClamyHatz/Trackademics/pull/40), adjudicated in the PR description: accepted the test cleanup fix (5d54fde), rejected the concurrency, JDBC date, and extra coverage suggestions.
+  - Bay Shahryar — [PR #35](https://github.com/ClamyHatz/Trackademics/pull/35), adjudicated in the PR and TESTING.md: accepted the insert() no-generated-key fix and the update() null guard, rejected password hashing.
 
 ## Extra Credit Log
 | Item | Who | Evidence (Issue/PR) |
