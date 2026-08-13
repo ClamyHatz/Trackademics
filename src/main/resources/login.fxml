@@ -29,7 +29,8 @@
                    promptText="Password"
                    maxWidth="260" />
 
-    <Button text="Log In"
+    <Button fx:id="loginButton"
+            text="Log In"
             prefWidth="260"
             onAction="#handleLogin" />
 
