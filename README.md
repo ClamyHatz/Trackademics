@@ -57,9 +57,11 @@ Issue if the team later decides to attempt it for extra credit._
 ## AI Usage Log
 - **AI-drafted tests:** see [TESTING.md](TESTING.md) — per owner.
   - Bay Shahryar — AI-drafted UserDao and AuthService tests, curated in [TESTING.md](TESTING.md).
+  - Lily Keus — AI-drafted Grade-related tests, curated in [TESTING.md](TESTING.md).
 - **AI code reviews:** <PR link + adjudication note> — per owner.
   - Ayoung Choi — [PR #40](https://github.com/ClamyHatz/Trackademics/pull/40), adjudicated in the PR description: accepted the test cleanup fix (5d54fde), rejected the concurrency, JDBC date, and extra coverage suggestions.
   - Bay Shahryar — [PR #35](https://github.com/ClamyHatz/Trackademics/pull/35), adjudicated in the PR and TESTING.md: accepted the insert() no-generated-key fix and the update() null guard, rejected password hashing.
+  - Lily Keus — [PR #54](https://github.com/ClamyHatz/Trackademics/pull/54), adjudicated in the PR: accepted status label addition, only calling findAll() once, rejected Unguarded NPE, deletion of weight, score validation, and weightColumn naming.
 
 ## Extra Credit Log
 | Item | Who | Evidence (Issue/PR) |
