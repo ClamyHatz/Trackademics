@@ -9,18 +9,22 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 /**
- * Controls the login screen.
+ * Controls the registration screen.
  *
- * Reads the username and password, asks AuthService to log in, and on success
- * stores the user in Session and returns to the home page. Failures show both an
- * inline message and an alert. If someone is already logged in, the login screen
- * sends them back to home instead of letting them log in over the top.
+ * Reads the username, password, and confirm password, then asks AuthService to
+ * register the account. New accounts are always students; teacher accounts are
+ * seeded, so no one can register themselves as a teacher. On success it shows an
+ * alert and returns to the login screen. Failures show an inline message and an
+ * alert.
  *
  * @author Bay Shahryar
- * @version 0.2.0
+ * @version 0.3.0
  * @since 8/9/26
  */
-public class LoginController implements StageAware {
+public class RegisterController implements StageAware {
+
+    /** New registrations are always students. */
+    private static final String DEFAULT_ROLE = "STUDENT";
 
     private Stage stage;
 
@@ -31,67 +35,57 @@ public class LoginController implements StageAware {
     private PasswordField passwordField;
 
     @FXML
+    private PasswordField confirmPasswordField;
+
+    @FXML
     private Label messageLabel;
 
     /**
-     * Called by SceneFactory after login.fxml has been loaded.
+     * Called by SceneFactory after register.fxml has been loaded.
      *
      * @param stage the application's primary stage
      */
     @Override
     public void setStage(Stage stage) {
         this.stage = stage;
-        // setStage runs after initialize, so the redirect check lives here where
-        // the stage is available to navigate with.
-        if (Session.isLoggedIn()) {
-            changeScene(SceneType.HOME);
-        }
     }
 
     /**
-     * Handles the Log In button: validates and authenticates the input.
+     * Handles the Register button: validates and creates the account.
      */
     @FXML
-    private void handleLogin() {
+    private void handleRegister() {
         messageLabel.setText("");
 
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText().strip();
+        String password = passwordField.getText().strip();
+        String confirmPassword = confirmPasswordField.getText().strip();
 
         AuthResult result;
         try (Connection connection = DatabaseConnection.getConnection()) {
             AuthService authService = new AuthService(new UserDao(connection));
-            result = authService.login(username, password);
+            result = authService.register(username, password, confirmPassword, DEFAULT_ROLE);
         } catch (SQLException exception) {
-            showAlert(Alert.AlertType.ERROR, "Login Error",
+            showAlert(Alert.AlertType.ERROR, "Registration Error",
                     "Could not reach the database. Please try again.");
             return;
         }
 
         if (result.isSuccess()) {
-            Session.setCurrentUser(result.getUser());
-            showAlert(Alert.AlertType.INFORMATION, "Login", result.getMessage());
-            changeScene(SceneType.HOME);
+            showAlert(Alert.AlertType.INFORMATION, "Registration", result.getMessage());
+            changeScene(SceneType.LOGIN);
         } else {
             messageLabel.setText(result.getMessage());
-            showAlert(Alert.AlertType.WARNING, "Login Failed", result.getMessage());
+            showAlert(Alert.AlertType.WARNING, "Registration Failed", result.getMessage());
         }
     }
 
     /**
-     * Opens the registration screen.
+     * Returns to the login screen.
      */
     @FXML
-    private void openRegister() {
-        changeScene(SceneType.REGISTER);
-    }
-
-    /**
-     * Returns to the home screen.
-     */
-    @FXML
-    private void openHome() {
-        changeScene(SceneType.HOME);
+    private void openLogin() {
+        changeScene(SceneType.LOGIN);
     }
 
     /**
@@ -117,7 +111,7 @@ public class LoginController implements StageAware {
     private void changeScene(SceneType sceneType) {
         if (stage == null) {
             throw new IllegalStateException(
-                    "Stage was not supplied to LoginController.");
+                    "Stage was not supplied to RegisterController.");
         }
         stage.setScene(SceneFactory.create(sceneType, stage));
     }
