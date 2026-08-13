@@ -1,6 +1,8 @@
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -22,24 +24,46 @@ public class AssignmentFormController implements StageAware {
 
   private static Assignment assignmentToEdit;
 
+  private final List<Course> teacherCourses =
+      new ArrayList<>();
+
   private Stage stage;
 
-  @FXML private Label formTitleLabel;
-  @FXML private TextField classIdField;
-  @FXML private TextField titleField;
-  @FXML private TextArea descriptionArea;
-  @FXML private DatePicker dueDatePicker;
-  @FXML private TextField pointsField;
-  @FXML private ComboBox<String> statusComboBox;
-  @FXML private Button saveButton;
-  @FXML private Label messageLabel;
+  @FXML
+  private Label formTitleLabel;
+
+  @FXML
+  private ComboBox<String> classComboBox;
+
+  @FXML
+  private TextField titleField;
+
+  @FXML
+  private TextArea descriptionArea;
+
+  @FXML
+  private DatePicker dueDatePicker;
+
+  @FXML
+  private TextField pointsField;
+
+  @FXML
+  private ComboBox<String> statusComboBox;
+
+  @FXML
+  private Button saveButton;
+
+  @FXML
+  private Label messageLabel;
 
   /**
    * Stores the assignment selected for editing.
    *
    * @param assignment the selected assignment
    */
-  public static void setAssignmentToEdit(Assignment assignment) {
+  public static void setAssignmentToEdit(
+      Assignment assignment) {
+
     assignmentToEdit = assignment;
   }
 
@@ -62,7 +86,10 @@ public class AssignmentFormController implements StageAware {
         FXCollections.observableArrayList(
             "ACTIVE"));
 
-    statusComboBox.setValue("ACTIVE");
+    statusComboBox.setValue(
+        "ACTIVE");
+
+    loadTeacherClasses();
 
     if (assignmentToEdit != null) {
       loadAssignment();
@@ -70,29 +97,109 @@ public class AssignmentFormController implements StageAware {
   }
 
   /**
+   * Loads the logged-in teacher's classes.
+   */
+  private void loadTeacherClasses() {
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null) {
+      return;
+    }
+
+    try {
+      ClassDAO classDao =
+          new ClassDAO();
+
+      teacherCourses.clear();
+
+      teacherCourses.addAll(
+          classDao.findByTeacher(
+              currentUser.getUserId()));
+
+      List<String> classNames =
+          new ArrayList<>();
+
+      for (Course course : teacherCourses) {
+        classNames.add(
+            course.getClassCode()
+                + " - "
+                + course.getTitle());
+      }
+
+      classComboBox.setItems(
+          FXCollections.observableArrayList(
+              classNames));
+
+      if (!teacherCourses.isEmpty()) {
+        classComboBox.getSelectionModel()
+            .selectFirst();
+      }
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not load your classes.");
+
+      exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Returns the selected class.
+   *
+   * @return the selected course, or null
+   */
+  private Course getSelectedCourse() {
+    int selectedIndex =
+        classComboBox
+            .getSelectionModel()
+            .getSelectedIndex();
+
+    if (selectedIndex < 0
+        || selectedIndex >= teacherCourses.size()) {
+
+      return null;
+    }
+
+    return teacherCourses.get(
+        selectedIndex);
+  }
+
+  /**
    * Checks the form and saves the assignment.
    */
   @FXML
   private void saveAssignment() {
-    int classId;
+    Course selectedCourse =
+        getSelectedCourse();
+
+    if (selectedCourse == null) {
+      messageLabel.setText(
+          "Select a class.");
+      return;
+    }
+
+    int classId =
+        selectedCourse.getClassId();
+
     double pointsPossible;
 
     try {
-      classId = Integer.parseInt(classIdField.getText());
+      pointsPossible =
+          Double.parseDouble(
+              pointsField.getText());
+
     } catch (NumberFormatException exception) {
-      messageLabel.setText("Class ID must be a whole number.");
+      messageLabel.setText(
+          "Points must be a number.");
       return;
     }
 
-    try {
-      pointsPossible = Double.parseDouble(pointsField.getText());
-    } catch (NumberFormatException exception) {
-      messageLabel.setText("Points must be a number.");
-      return;
-    }
+    String title =
+        titleField.getText();
 
-    String title = titleField.getText();
-    LocalDate dueDate = dueDatePicker.getValue();
+    LocalDate dueDate =
+        dueDatePicker.getValue();
 
     AssignmentService service =
         new AssignmentService();
@@ -105,7 +212,8 @@ public class AssignmentFormController implements StageAware {
             pointsPossible);
 
     if (!validationMessage.isEmpty()) {
-      messageLabel.setText(validationMessage);
+      messageLabel.setText(
+          validationMessage);
       return;
     }
 
@@ -135,15 +243,27 @@ public class AssignmentFormController implements StageAware {
                 pointsPossible,
                 status);
 
-        assignmentDao.insert(assignment);
+        assignmentDao.insert(
+            assignment);
 
       } else {
-        assignmentToEdit.setClassId(classId);
-        assignmentToEdit.setTitle(title);
-        assignmentToEdit.setDescription(description);
-        assignmentToEdit.setDueDate(dueDate);
-        assignmentToEdit.setPointsPossible(pointsPossible);
-        assignmentToEdit.setStatus(status);
+        assignmentToEdit.setClassId(
+            classId);
+
+        assignmentToEdit.setTitle(
+            title);
+
+        assignmentToEdit.setDescription(
+            description);
+
+        assignmentToEdit.setDueDate(
+            dueDate);
+
+        assignmentToEdit.setPointsPossible(
+            pointsPossible);
+
+        assignmentToEdit.setStatus(
+            status);
 
         assignmentDao.update(
             assignmentToEdit);
@@ -187,9 +307,23 @@ public class AssignmentFormController implements StageAware {
     saveButton.setText(
         "Update Assignment");
 
-    classIdField.setText(
-        Integer.toString(
-            assignmentToEdit.getClassId()));
+    for (int index = 0;
+        index < teacherCourses.size();
+        index++) {
+
+      Course course =
+          teacherCourses.get(index);
+
+      if (course.getClassId()
+          == assignmentToEdit.getClassId()) {
+
+        classComboBox
+            .getSelectionModel()
+            .select(index);
+
+        break;
+      }
+    }
 
     titleField.setText(
         assignmentToEdit.getTitle());

@@ -32,21 +32,27 @@
         prefHeight="350.0">
 
         <columns>
+
           <TableColumn fx:id="titleColumn"
             text="Title"
-            prefWidth="250.0" />
+            prefWidth="210.0" />
 
           <TableColumn fx:id="dueDateColumn"
             text="Due Date"
-            prefWidth="150.0" />
+            prefWidth="130.0" />
 
           <TableColumn fx:id="pointsColumn"
             text="Points"
-            prefWidth="120.0" />
+            prefWidth="100.0" />
 
           <TableColumn fx:id="statusColumn"
             text="Status"
-            prefWidth="180.0" />
+            prefWidth="120.0" />
+
+          <TableColumn fx:id="classColumn"
+            text="Class"
+            prefWidth="200.0" />
+
         </columns>
 
       </TableView>
@@ -60,15 +66,23 @@
 
       <HBox spacing="10.0">
 
+        <Button text="Back"
+          onAction="#goBack" />
+
         <Button fx:id="addAssignmentButton"
           text="Add Assignment"
           onAction="#openAssignmentForm" />
 
-        <Button text="Edit Assignment"
+        <Button fx:id="editAssignmentButton"
+          text="Edit Assignment"
           onAction="#editAssignment" />
 
-        <Button text="Delete Assignment"
+        <Button fx:id="deleteAssignmentButton"
+          text="Delete Assignment"
           onAction="#deleteAssignment" />
+
+        <Button text="Log Out"
+          onAction="#logout" />
 
       </HBox>
 

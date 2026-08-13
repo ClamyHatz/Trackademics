@@ -1,11 +1,15 @@
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -38,6 +42,18 @@ public class AssignmentController implements StageAware {
   private TableColumn<Assignment, String> statusColumn;
 
   @FXML
+  private TableColumn<Assignment, String> classColumn;
+
+  @FXML
+  private Button addAssignmentButton;
+
+  @FXML
+  private Button editAssignmentButton;
+
+  @FXML
+  private Button deleteAssignmentButton;
+
+  @FXML
   private Label messageLabel;
 
   /**
@@ -65,6 +81,27 @@ public class AssignmentController implements StageAware {
     statusColumn.setCellValueFactory(
         new PropertyValueFactory<>("status"));
 
+    classColumn.setCellValueFactory(
+        cellData ->
+            new ReadOnlyStringWrapper(
+                getClassName(
+                    cellData.getValue().getClassId())));
+
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null) {
+      return;
+    }
+
+    boolean teacher =
+        "TEACHER".equalsIgnoreCase(
+            currentUser.getRole());
+
+    addAssignmentButton.setDisable(!teacher);
+    editAssignmentButton.setDisable(!teacher);
+    deleteAssignmentButton.setDisable(!teacher);
+
     loadAssignments();
   }
 
@@ -73,7 +110,8 @@ public class AssignmentController implements StageAware {
    */
   @FXML
   private void openAssignmentForm() {
-    AssignmentFormController.setAssignmentToEdit(null);
+    AssignmentFormController.setAssignmentToEdit(
+        null);
 
     stage.setScene(
         SceneFactory.create(
@@ -122,17 +160,14 @@ public class AssignmentController implements StageAware {
       return;
     }
 
-    try {
-      Connection connection =
-          DatabaseConnection.getConnection();
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
 
       assignmentDao.delete(
           selectedAssignment.getAssignmentId());
-
-      connection.close();
 
       loadAssignments();
 
@@ -151,9 +186,30 @@ public class AssignmentController implements StageAware {
    * Loads assignments from the database.
    */
   private void loadAssignments() {
-    try {
-      Connection connection =
-          DatabaseConnection.getConnection();
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null) {
+      return;
+    }
+
+    if ("TEACHER".equalsIgnoreCase(
+        currentUser.getRole())) {
+
+      loadTeacherAssignments(
+          currentUser.getUserId());
+
+    } else {
+      loadAllAssignments();
+    }
+  }
+
+  /**
+   * Loads all assignments for a student.
+   */
+  private void loadAllAssignments() {
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
 
       AssignmentDao assignmentDao =
           new AssignmentDao(connection);
@@ -165,15 +221,131 @@ public class AssignmentController implements StageAware {
           FXCollections.observableArrayList(
               savedAssignments);
 
-      assignmentTable.setItems(assignments);
-
-      connection.close();
+      assignmentTable.setItems(
+          assignments);
 
     } catch (SQLException exception) {
-      System.out.println(
+      messageLabel.setText(
           "Could not load assignments.");
 
       exception.printStackTrace();
     }
+  }
+
+  /**
+   * Loads assignments that belong to the teacher's classes.
+   *
+   * @param teacherId the logged-in teacher id
+   */
+  private void loadTeacherAssignments(
+      int teacherId) {
+
+    try {
+      ClassDAO classDao =
+          new ClassDAO();
+
+      List<Course> courses =
+          classDao.findByTeacher(
+              teacherId);
+
+      List<Assignment> teacherAssignments =
+          new ArrayList<>();
+
+      try (Connection connection =
+          DatabaseConnection.getConnection()) {
+
+        AssignmentDao assignmentDao =
+            new AssignmentDao(connection);
+
+        for (Course course : courses) {
+          List<Assignment> classAssignments =
+              assignmentDao.findByClassId(
+                  course.getClassId());
+
+          teacherAssignments.addAll(
+              classAssignments);
+        }
+      }
+
+      ObservableList<Assignment> assignments =
+          FXCollections.observableArrayList(
+              teacherAssignments);
+
+      assignmentTable.setItems(
+          assignments);
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not load assignments.");
+
+      exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Gets the class name for an assignment.
+   *
+   * @param classId the assignment's class id
+   * @return the class code and title
+   */
+  private String getClassName(
+      int classId) {
+
+    try {
+      ClassDAO classDao =
+          new ClassDAO();
+
+      Course course =
+          classDao.findById(
+              classId);
+
+      if (course == null) {
+        return "Unknown";
+      }
+
+      return course.getClassCode()
+          + " - "
+          + course.getTitle();
+
+    } catch (SQLException exception) {
+      exception.printStackTrace();
+
+      return "Unknown";
+    }
+  }
+
+  /**
+   * Returns to the home screen.
+   */
+  @FXML
+  private void goBack() {
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.HOME,
+            stage));
+  }
+
+  /**
+   * Logs the current user out and returns home.
+   */
+  @FXML
+  private void logout() {
+    Session.clear();
+
+    Alert alert =
+        new Alert(
+            Alert.AlertType.INFORMATION);
+
+    alert.setTitle("Logout");
+    alert.setHeaderText(null);
+    alert.setContentText(
+        "SUCCESSFULLY LOGGED OUT");
+
+    alert.showAndWait();
+
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.HOME,
+            stage));
   }
 }
