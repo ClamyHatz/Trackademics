@@ -59,8 +59,8 @@ public class HomeController implements StageAware {
 
         if (loggedIn) {
             statusLabel.setText(
-                    "Logged in as " + currentUser.getUsername()
-                            + " (" + currentUser.getRole() + ")");
+                "Logged in as " + currentUser.getUsername()
+                    + " (" + currentUser.getRole() + ")");
         } else {
             statusLabel.setText("Not logged in");
         }
@@ -84,6 +84,11 @@ public class HomeController implements StageAware {
 
     @FXML
     private void openAssignments() {
+        if (!Session.isLoggedIn()) {
+            changeScene(SceneType.LOGIN);
+            return;
+        }
+
         changeScene(SceneType.ASSIGNMENTS);
     }
 
@@ -114,7 +119,7 @@ public class HomeController implements StageAware {
     private void changeScene(SceneType sceneType) {
         if (stage == null) {
             throw new IllegalStateException(
-                    "Stage was not supplied to HomeController.");
+                "Stage was not supplied to HomeController.");
         }
 
         stage.setScene(SceneFactory.create(sceneType, stage));
