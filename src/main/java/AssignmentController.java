@@ -1,12 +1,15 @@
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -23,6 +26,9 @@ public class AssignmentController implements StageAware {
 
   private Stage stage;
 
+  private final List<Course> teacherCourses =
+      new ArrayList<>();
+
   @FXML
   private TableView<Assignment> assignmentTable;
 
@@ -37,6 +43,12 @@ public class AssignmentController implements StageAware {
 
   @FXML
   private TableColumn<Assignment, String> statusColumn;
+
+  @FXML
+  private Label classSelectionLabel;
+
+  @FXML
+  private ComboBox<String> classComboBox;
 
   @FXML
   private Button addAssignmentButton;
@@ -56,7 +68,13 @@ public class AssignmentController implements StageAware {
   @Override
   public void setStage(Stage stage) {
     this.stage = stage;
-    checkUserRole();
+
+    if (!Session.isLoggedIn()) {
+      stage.setScene(
+          SceneFactory.create(
+              SceneType.LOGIN,
+              stage));
+    }
   }
 
   /**
@@ -76,44 +94,209 @@ public class AssignmentController implements StageAware {
     statusColumn.setCellValueFactory(
         new PropertyValueFactory<>("status"));
 
-    loadAssignments();
-  }
-
-  /**
-   * Checks whether the logged-in user can change assignments.
-   */
-  private void checkUserRole() {
     User currentUser =
         Session.getCurrentUser();
 
-    boolean canEdit =
-        currentUser != null
-            && "TEACHER".equals(
-            currentUser.getRole());
-
-    addAssignmentButton.setDisable(!canEdit);
-    editAssignmentButton.setDisable(!canEdit);
-    deleteAssignmentButton.setDisable(!canEdit);
-  }
-
-  /**
-   * Opens an empty form for adding an assignment.
-   */
-  @FXML
-  private void openAssignmentForm() {
-    User currentUser =
-        Session.getCurrentUser();
-
-    if (currentUser == null
-        || !"TEACHER".equals(
-        currentUser.getRole())) {
-
-      messageLabel.setText(
-          "Only teachers can add assignments.");
+    if (currentUser == null) {
       return;
     }
 
-    AssignmentFormController.setAssignmentToEdit(null);
+    boolean teacher =
+        "TEACHER".equalsIgnoreCase(
+            currentUser.getRole());
+
+    addAssignmentButton.setDisable(!teacher);
+    editAssignmentButton.setDisable(!teacher);
+    deleteAssignmentButton.setDisable(!teacher);
+
+    classSelectionLabel.setVisible(teacher);
+    classSelectionLabel.setManaged(teacher);
+
+    classComboBox.setVisible(teacher);
+    classComboBox.setManaged(teacher);
+
+    if (teacher) {
+      loadTeacherCourses();
+    } else {
+      loadAllAssignments();
+    }
+  }
+
+  /**
+   * Loads the classes that belong to the logged-in teacher.
+   */
+  private void loadTeacherCourses() {
+    User currentUser =
+        Session.getCurrentUser();
+
+    if (currentUser == null) {
+      return;
+    }
+
+    try {
+      ClassDAO classDao =
+          new ClassDAO();
+
+      teacherCourses.clear();
+
+      teacherCourses.addAll(
+          classDao.findByTeacher(
+              currentUser.getUserId()));
+
+      ObservableList<String> courseNames =
+          FXCollections.observableArrayList();
+
+      for (Course course : teacherCourses) {
+        courseNames.add(
+            course.getClassCode()
+                + " - "
+                + course.getTitle());
+      }
+
+      classComboBox.setItems(
+          courseNames);
+
+      if (teacherCourses.isEmpty()) {
+        messageLabel.setText(
+            "You do not have any classes.");
+
+        assignmentTable.setItems(
+            FXCollections.observableArrayList());
+
+        addAssignmentButton.setDisable(true);
+        editAssignmentButton.setDisable(true);
+        deleteAssignmentButton.setDisable(true);
+
+        return;
+      }
+
+      classComboBox.getSelectionModel()
+          .selectFirst();
+
+      loadSelectedClassAssignments();
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not load your classes.");
+
+      exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Loads assignments when the teacher changes classes.
+   */
+  @FXML
+  private void changeClass() {
+    loadSelectedClassAssignments();
+  }
+
+  /**
+   * Returns the class currently selected by the teacher.
+   *
+   * @return the selected course, or null if none is selected
+   */
+  private Course getSelectedCourse() {
+    int selectedIndex =
+        classComboBox
+            .getSelectionModel()
+            .getSelectedIndex();
+
+    if (selectedIndex < 0
+        || selectedIndex >= teacherCourses.size()) {
+
+      return null;
+    }
+
+    return teacherCourses.get(
+        selectedIndex);
+  }
+
+  /**
+   * Loads assignments for the teacher's selected class.
+   */
+  private void loadSelectedClassAssignments() {
+    Course selectedCourse =
+        getSelectedCourse();
+
+    if (selectedCourse == null) {
+      return;
+    }
+
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
+
+      AssignmentDao assignmentDao =
+          new AssignmentDao(connection);
+
+      List<Assignment> savedAssignments =
+          assignmentDao.findByClassId(
+              selectedCourse.getClassId());
+
+      ObservableList<Assignment> assignments =
+          FXCollections.observableArrayList(
+              savedAssignments);
+
+      assignmentTable.setItems(
+          assignments);
+
+      messageLabel.setText("");
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not load assignments.");
+
+      exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Loads all assignments for a student.
+   */
+  private void loadAllAssignments() {
+    try (Connection connection =
+        DatabaseConnection.getConnection()) {
+
+      AssignmentDao assignmentDao =
+          new AssignmentDao(connection);
+
+      List<Assignment> savedAssignments =
+          assignmentDao.findAll();
+
+      ObservableList<Assignment> assignments =
+          FXCollections.observableArrayList(
+              savedAssignments);
+
+      assignmentTable.setItems(
+          assignments);
+
+    } catch (SQLException exception) {
+      messageLabel.setText(
+          "Could not load assignments.");
+
+      exception.printStackTrace();
+    }
+  }
+
+  /**
+   * Opens an empty form for creating an assignment.
+   */
+  @FXML
+  private void openAssignmentForm() {
+    Course selectedCourse =
+        getSelectedCourse();
+
+    if (selectedCourse == null) {
+      messageLabel.setText(
+          "Select a class first.");
+      return;
+    }
+
+    AssignmentFormController.setAssignmentToEdit(
+        null);
+
+    AssignmentFormController.setSelectedClassId(
+        selectedCourse.getClassId());
 
     stage.setScene(
         SceneFactory.create(
@@ -137,14 +320,11 @@ public class AssignmentController implements StageAware {
       return;
     }
 
-    if (!canManageAssignment(
-        selectedAssignment)) {
-
-      return;
-    }
-
     AssignmentFormController.setAssignmentToEdit(
         selectedAssignment);
+
+    AssignmentFormController.setSelectedClassId(
+        selectedAssignment.getClassId());
 
     stage.setScene(
         SceneFactory.create(
@@ -168,12 +348,6 @@ public class AssignmentController implements StageAware {
       return;
     }
 
-    if (!canManageAssignment(
-        selectedAssignment)) {
-
-      return;
-    }
-
     try (Connection connection =
         DatabaseConnection.getConnection()) {
 
@@ -183,76 +357,25 @@ public class AssignmentController implements StageAware {
       assignmentDao.delete(
           selectedAssignment.getAssignmentId());
 
-      loadAssignments();
-
-      messageLabel.setText(
-          "Assignment deleted.");
-
     } catch (SQLException exception) {
       messageLabel.setText(
           "Could not delete the assignment.");
 
       exception.printStackTrace();
-    }
-  }
-
-  /**
-   * Checks whether the logged-in teacher owns the
-   * class that the assignment belongs to.
-   */
-  private boolean canManageAssignment(
-      Assignment assignment) {
-
-    User currentUser =
-        Session.getCurrentUser();
-
-    if (currentUser == null
-        || !"TEACHER".equals(
-        currentUser.getRole())) {
-
-      messageLabel.setText(
-          "Only teachers can change assignments.");
-      return false;
+      return;
     }
 
-    try {
-      ClassDAO classDao =
-          new ClassDAO();
+    loadSelectedClassAssignments();
 
-      Course course =
-          classDao.findById(
-              assignment.getClassId());
-
-      if (course == null) {
-        messageLabel.setText(
-            "The class could not be found.");
-        return false;
-      }
-
-      if (course.getTeacherId()
-          != currentUser.getUserId()) {
-
-        messageLabel.setText(
-            "You can only manage assignments for your own classes.");
-        return false;
-      }
-
-      return true;
-
-    } catch (SQLException exception) {
-      messageLabel.setText(
-          "Could not check the class.");
-
-      exception.printStackTrace();
-      return false;
-    }
+    messageLabel.setText(
+        "Assignment deleted.");
   }
 
   /**
    * Returns to the home screen.
    */
   @FXML
-  private void goHome() {
+  private void goBack() {
     stage.setScene(
         SceneFactory.create(
             SceneType.HOME,
@@ -260,29 +383,26 @@ public class AssignmentController implements StageAware {
   }
 
   /**
-   * Loads assignments from the database.
+   * Logs the current user out and returns to the home screen.
    */
-  private void loadAssignments() {
-    try (Connection connection =
-        DatabaseConnection.getConnection()) {
+  @FXML
+  private void logout() {
+    Session.clear();
 
-      AssignmentDao assignmentDao =
-          new AssignmentDao(connection);
+    Alert alert =
+        new Alert(
+            Alert.AlertType.INFORMATION);
 
-      List<Assignment> savedAssignments =
-          assignmentDao.findAll();
+    alert.setTitle("Logout");
+    alert.setHeaderText(null);
+    alert.setContentText(
+        "SUCCESSFULLY LOGGED OUT");
 
-      ObservableList<Assignment> assignments =
-          FXCollections.observableArrayList(
-              savedAssignments);
+    alert.showAndWait();
 
-      assignmentTable.setItems(assignments);
-
-    } catch (SQLException exception) {
-      System.out.println(
-          "Could not load assignments.");
-
-      exception.printStackTrace();
-    }
+    stage.setScene(
+        SceneFactory.create(
+            SceneType.HOME,
+            stage));
   }
 }

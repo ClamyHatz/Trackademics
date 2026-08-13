@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -14,6 +15,7 @@
   prefHeight="500.0">
 
   <top>
+
     <VBox spacing="10.0"
       style="-fx-padding: 20;">
 
@@ -22,16 +24,30 @@
 
       <Label text="View assignments and their due dates." />
 
+      <HBox spacing="10.0">
+
+        <Label fx:id="classSelectionLabel"
+          text="Course:" />
+
+        <ComboBox fx:id="classComboBox"
+          prefWidth="300.0"
+          onAction="#changeClass" />
+
+      </HBox>
+
     </VBox>
+
   </top>
 
   <center>
+
     <VBox style="-fx-padding: 0 20 0 20;">
 
       <TableView fx:id="assignmentTable"
         prefHeight="350.0">
 
         <columns>
+
           <TableColumn fx:id="titleColumn"
             text="Title"
             prefWidth="250.0" />
@@ -47,21 +63,27 @@
           <TableColumn fx:id="statusColumn"
             text="Status"
             prefWidth="180.0" />
+
         </columns>
 
       </TableView>
 
     </VBox>
+
   </center>
 
   <bottom>
+
     <VBox spacing="10.0"
       style="-fx-padding: 20;">
 
       <HBox spacing="10.0">
 
+        <Button text="Back"
+          onAction="#goBack" />
+
         <Button fx:id="addAssignmentButton"
-          text="Add Assignment"
+          text="Create Assignment"
           onAction="#openAssignmentForm" />
 
         <Button fx:id="editAssignmentButton"
@@ -72,14 +94,15 @@
           text="Delete Assignment"
           onAction="#deleteAssignment" />
 
-        <Button text="Home"
-          onAction="#goHome" />
+        <Button text="Log Out"
+          onAction="#logout" />
 
       </HBox>
 
       <Label fx:id="messageLabel" />
 
     </VBox>
+
   </bottom>
 
 </BorderPane>

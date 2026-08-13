@@ -17,13 +17,8 @@
   style="-fx-padding: 20;">
 
   <Label fx:id="formTitleLabel"
-    text="Add Assignment"
+    text="Create Assignment"
     style="-fx-font-size: 24px;" />
-
-  <Label text="Class ID" />
-
-  <TextField fx:id="classIdField"
-    promptText="Enter the class ID" />
 
   <Label text="Title" />
 
@@ -53,7 +48,7 @@
   <HBox spacing="10.0">
 
     <Button fx:id="saveButton"
-      text="Save Assignment"
+      text="Create Assignment"
       onAction="#saveAssignment" />
 
     <Button text="Back to Assignments"

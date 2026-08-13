@@ -22,17 +22,33 @@ public class AssignmentFormController implements StageAware {
 
   private static Assignment assignmentToEdit;
 
+  private static int selectedClassId;
+
   private Stage stage;
 
-  @FXML private Label formTitleLabel;
-  @FXML private TextField classIdField;
-  @FXML private TextField titleField;
-  @FXML private TextArea descriptionArea;
-  @FXML private DatePicker dueDatePicker;
-  @FXML private TextField pointsField;
-  @FXML private ComboBox<String> statusComboBox;
-  @FXML private Button saveButton;
-  @FXML private Label messageLabel;
+  @FXML
+  private Label formTitleLabel;
+
+  @FXML
+  private TextField titleField;
+
+  @FXML
+  private TextArea descriptionArea;
+
+  @FXML
+  private DatePicker dueDatePicker;
+
+  @FXML
+  private TextField pointsField;
+
+  @FXML
+  private ComboBox<String> statusComboBox;
+
+  @FXML
+  private Button saveButton;
+
+  @FXML
+  private Label messageLabel;
 
   /**
    * Stores the assignment selected for editing.
@@ -43,6 +59,17 @@ public class AssignmentFormController implements StageAware {
       Assignment assignment) {
 
     assignmentToEdit = assignment;
+  }
+
+  /**
+   * Stores the class selected on the assignment screen.
+   *
+   * @param classId the selected class id
+   */
+  public static void setSelectedClassId(
+      int classId) {
+
+    selectedClassId = classId;
   }
 
   /**
@@ -64,10 +91,18 @@ public class AssignmentFormController implements StageAware {
         FXCollections.observableArrayList(
             "ACTIVE"));
 
-    statusComboBox.setValue("ACTIVE");
+    statusComboBox.setValue(
+        "ACTIVE");
 
     if (assignmentToEdit != null) {
       loadAssignment();
+
+    } else {
+      formTitleLabel.setText(
+          "Create Assignment");
+
+      saveButton.setText(
+          "Create Assignment");
     }
   }
 
@@ -76,19 +111,7 @@ public class AssignmentFormController implements StageAware {
    */
   @FXML
   private void saveAssignment() {
-    int classId;
     double pointsPossible;
-
-    try {
-      classId =
-          Integer.parseInt(
-              classIdField.getText());
-
-    } catch (NumberFormatException exception) {
-      messageLabel.setText(
-          "Class ID must be a whole number.");
-      return;
-    }
 
     try {
       pointsPossible =
@@ -106,6 +129,9 @@ public class AssignmentFormController implements StageAware {
 
     LocalDate dueDate =
         dueDatePicker.getValue();
+
+    int classId =
+        selectedClassId;
 
     AssignmentService service =
         new AssignmentService();
@@ -153,22 +179,34 @@ public class AssignmentFormController implements StageAware {
                 pointsPossible,
                 status);
 
-        assignmentDao.insert(assignment);
+        assignmentDao.insert(
+            assignment);
 
       } else {
-        assignmentToEdit.setClassId(classId);
-        assignmentToEdit.setTitle(title);
-        assignmentToEdit.setDescription(description);
-        assignmentToEdit.setDueDate(dueDate);
+        assignmentToEdit.setClassId(
+            classId);
+
+        assignmentToEdit.setTitle(
+            title);
+
+        assignmentToEdit.setDescription(
+            description);
+
+        assignmentToEdit.setDueDate(
+            dueDate);
+
         assignmentToEdit.setPointsPossible(
             pointsPossible);
-        assignmentToEdit.setStatus(status);
+
+        assignmentToEdit.setStatus(
+            status);
 
         assignmentDao.update(
             assignmentToEdit);
       }
 
       assignmentToEdit = null;
+      selectedClassId = 0;
 
       stage.setScene(
           SceneFactory.create(
@@ -194,7 +232,7 @@ public class AssignmentFormController implements StageAware {
         Session.getCurrentUser();
 
     if (currentUser == null
-        || !"TEACHER".equals(
+        || !"TEACHER".equalsIgnoreCase(
         currentUser.getRole())) {
 
       messageLabel.setText(
@@ -207,7 +245,8 @@ public class AssignmentFormController implements StageAware {
           new ClassDAO();
 
       Course course =
-          classDao.findById(classId);
+          classDao.findById(
+              classId);
 
       if (course == null) {
         messageLabel.setText(
@@ -240,6 +279,7 @@ public class AssignmentFormController implements StageAware {
   @FXML
   private void goBack() {
     assignmentToEdit = null;
+    selectedClassId = 0;
 
     stage.setScene(
         SceneFactory.create(
@@ -253,6 +293,7 @@ public class AssignmentFormController implements StageAware {
   @FXML
   private void goHome() {
     assignmentToEdit = null;
+    selectedClassId = 0;
 
     stage.setScene(
         SceneFactory.create(
@@ -270,9 +311,8 @@ public class AssignmentFormController implements StageAware {
     saveButton.setText(
         "Update Assignment");
 
-    classIdField.setText(
-        Integer.toString(
-            assignmentToEdit.getClassId()));
+    selectedClassId =
+        assignmentToEdit.getClassId();
 
     titleField.setText(
         assignmentToEdit.getTitle());
