@@ -86,6 +86,49 @@ Most findings were out of scope or misread the intentional design. I accepted th
 two small fixes that genuinely improved the code.
 
 
+## AuthService tests
+
+The AuthService tests run against in-memory H2, same pattern as the UserDao
+tests, a blank users table built with `@BeforeEach`, connection closed with
+`@AfterEach`. Each test wraps a real UserDao in an AuthService, so it goes
+through the full path from service to database.
+
+Tests covered: valid registration, every validation failure (blank username,
+blank password, missing role, invalid role, mismatched passwords, duplicate
+username), login success, wrong password, unknown username, blank fields, and
+the security case where wrong-password and unknown-user return the same message.
+
+Final tests: `src/test/java/AuthServiceTest.java`
+
+## AI-drafted AuthService tests, then curated
+
+**Prompt:** I gave ChatGPT the AuthService, AuthResult, UserDao, and User
+signatures and the register/login rules, and asked for a JUnit 5 test class using
+in-memory H2. I left out my exact H2 setup and the fact that my project uses no
+packages, so its assumptions would show.
+
+**What it got right:** Solid coverage, including the security case (same message
+for wrong password and unknown user) and both STUDENT and TEACHER registration.
+Its `assertFailed` helper (checks the full failure contract in one place) is a
+clean idea.
+
+**What it got wrong:** A leftover package comment (my project has no packages), a
+different H2 setup than my team's (random UUID name with `DB_CLOSE_DELAY=-1` vs.
+our simple named db with `DROP TABLE IF EXISTS`), and `INT` where our DDL uses
+`INTEGER`. None break, but none match our convention.
+
+**Style call:** Its parameterized blank-field test is cleaner than my
+one-method-per-case style, but I kept mine since the rest of our suite doesn't use
+parameterized tests and I wanted consistency.
+
+**Architecture note:** It registered a TEACHER through AuthService, which is
+correct, my STUDENT-only rule lives in the controller, not the service, so the
+service still accepts either role.
+
+**What I changed:** I kept my existing `AuthServiceTest.java`, which already
+covers these cases in our style and passes. The value here was the evaluation:
+catching the no-package and H2-convention mismatches and confirming the role rule
+belongs in the controller.
 
 
 # Testing — Grades Slice (Lily Keus)
