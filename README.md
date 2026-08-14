@@ -20,7 +20,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 | Slice | Owner | GitHub username | Issues | Branch(es) | PR(s) | Enhancement chosen | Status      |
 |-------|-------|-----------------|--------|------------|-------|--------------------|-------------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 #20 #21 #22 | bay/user-dao-impl, bay/auth-service, bay/login-scene, bay/register-scene, bay/home-logout, bay/testfx-login | #23 #25 #32 #35 #47 #48 #49 #52 #56 | Notifications/alerts | complete |
-| 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment, ayoung/enrollment-dao, ayoung/courses-ui | #16 #24 #30 #40 #61 | Data binding (ObservableList / Property) | complete |
+| 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment, ayoung/enrollment-dao, ayoung/courses-ui | #16 #24 #30 #40 #46 #61 | Data binding (ObservableList / Property) | complete |
 | 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments estefan/assignment-data estefan/assignment-dao estefan/assignment-scene estefan/assignment-form estefan/assignment-validation | #5 #26 #27 #31 #42 #44 #57 | TableView populated with live data | complete     |
 | 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 #37 #39 | lily/grade-viewer, lily/grade-var-patch, lily/grade-viewer-DAO-and-Test, lily/home-page, lily/fake-data-insertion, lily/fxml-visuals, lily/AI-Tests-And-Code-Review | #28 #29 #34 #38 #43 #51 #54 | TableView / ListView populated with live data | complete |
 
@@ -51,13 +51,15 @@ Issue if the team later decides to attempt it for extra credit._
 | #42 | stef-VnV | ClamyHatz | | merged |
 | #43 | ClamyHatz | stef-VnV |  | merged |
 | #44 | stef-VnV | achoi0123 | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/44#issue-5096052086) | merged |
+| #46 | achoi0123 | ClamyHatz | | merged |
 | #51 | ClamyHatz | stef-VnV |  | merged |
 | #54 | ClamyHatz | stef-VnV | [adjudication](https://github.com/ClamyHatz/Trackademics/pull/54) | merged |
 | #55 | ClamyHatz | stef-VnV |  | merged |
-|  |  |  |  |  |
+| #61 | achoi0123 | baycs | | merged |
 
 ## AI Usage Log
-- **AI-drafted tests:** see [TESTING.md](TESTING.md) — per owner.
+- **AI-drafted tests:** see [TESTING.md](TESTING.md) — per owner
+  - Ayoung Choi — AI-drafted EnrollmentDAO tests, curated in [TESTING.md](TESTING.md).
   - Bay Shahryar — AI-drafted UserDao and AuthService tests, curated in [TESTING.md](TESTING.md).
   - Lily Keus — AI-drafted Grade-related tests, curated in [TESTING.md](TESTING.md).
   - Estefan Vicencio — AI-drafted AssignmentDao and AssignmentService tests, curated in [TESTING.md](TESTING.md).
