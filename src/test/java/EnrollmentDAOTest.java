@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,12 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests for EnrollmentDAO.
  *
  * Enrollments point at a class and a user, so each test needs those rows to
- * exist first. BeforeEach makes a teacher, a student and a class to hang the
- * enrollments off of, and AfterEach clears everything out so a failed assert
- * doesn't leave rows behind.
+ * exist first. BeforeEach makes a teacher, two students and two classes to
+ * hang the enrollments off of, and AfterEach clears everything out so a failed
+ * assert doesn't leave rows behind. The names carry a random suffix so a run
+ * that dies partway through doesn't collide with the next one.
  *
  * @author Ayoung Choi
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/6/26
  */
 
@@ -35,34 +38,40 @@ public class EnrollmentDAOTest {
 
     private int teacherId;
     private int studentId;
+    private int otherStudentId;
     private int classId;
-    private Integer extraClassId;
+    private int otherClassId;
 
     @BeforeEach
     void createTestRows() throws SQLException {
-        teacherId = insertUser("test_teacher", "TEACHER");
-        studentId = insertUser("test_student", "STUDENT");
+        String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
 
-        Course course = new Course("TEST101", "Test Course", "Summer 2026", teacherId);
+        teacherId = insertUser("test_teacher_" + suffix, "TEACHER");
+        studentId = insertUser("test_student_" + suffix, "STUDENT");
+        otherStudentId = insertUser("test_student2_" + suffix, "STUDENT");
+
+        Course course = new Course("TEST" + suffix, "Test Course", "Summer 2026", teacherId);
         classDao.insert(course);
         classId = course.getClassId();
+
+        Course otherCourse = new Course("OTHER" + suffix, "Other Course", "Summer 2026", teacherId);
+        classDao.insert(otherCourse);
+        otherClassId = otherCourse.getClassId();
     }
 
     @AfterEach
     void removeTestRows() throws SQLException {
-        if (extraClassId != null) {
-            for (Enrollment enrollment : dao.findByClass(extraClassId)) {
-                dao.delete(enrollment.getEnrollmentId());
-            }
-            classDao.delete(extraClassId);
-            extraClassId = null;
-        }
         for (Enrollment enrollment : dao.findByClass(classId)) {
             dao.delete(enrollment.getEnrollmentId());
         }
+        for (Enrollment enrollment : dao.findByClass(otherClassId)) {
+            dao.delete(enrollment.getEnrollmentId());
+        }
         classDao.delete(classId);
+        classDao.delete(otherClassId);
         deleteUser(teacherId);
         deleteUser(studentId);
+        deleteUser(otherStudentId);
     }
 
     @Test
@@ -80,6 +89,57 @@ public class EnrollmentDAOTest {
     }
 
     @Test
+    void findAllGrowsByOneWhenAnEnrollmentIsAdded() throws SQLException {
+        int before = dao.findAll().size();
+
+        Enrollment enrollment = new Enrollment(classId, studentId);
+        dao.insert(enrollment);
+
+        List<Enrollment> after = dao.findAll();
+
+        assertEquals(before + 1, after.size());
+        assertEquals(1, countById(after, enrollment.getEnrollmentId()));
+    }
+
+    @Test
+    void findByStudentOnlyReturnsThatStudentAndKeepsDroppedOnes() throws SQLException {
+        Enrollment first = new Enrollment(classId, studentId);
+        Enrollment second = new Enrollment(otherClassId, studentId);
+        Enrollment someoneElse = new Enrollment(classId, otherStudentId);
+        dao.insert(first);
+        dao.insert(second);
+        dao.insert(someoneElse);
+
+        dao.drop(second.getEnrollmentId());
+
+        List<Enrollment> found = dao.findByStudent(studentId);
+
+        assertEquals(2, found.size());
+        assertEquals(1, countById(found, first.getEnrollmentId()));
+        assertEquals(1, countById(found, second.getEnrollmentId()));
+        assertEquals(0, countById(found, someoneElse.getEnrollmentId()));
+    }
+
+    @Test
+    void updateChangesThePersistedStatusAndDate() throws SQLException {
+        Enrollment enrollment = new Enrollment(classId, studentId);
+        dao.insert(enrollment);
+
+        LocalDate backdated = enrollment.getEnrolledOn().minusDays(7);
+        enrollment.setEnrolledOn(backdated);
+        enrollment.setStatus(Enrollment.Status.DROPPED);
+        dao.update(enrollment);
+
+        Enrollment found = dao.findById(enrollment.getEnrollmentId());
+
+        assertNotNull(found);
+        assertEquals(backdated, found.getEnrolledOn());
+        assertEquals(Enrollment.Status.DROPPED, found.getStatus());
+        assertEquals(classId, found.getClassId());
+        assertEquals(studentId, found.getStudentId());
+    }
+
+    @Test
     void dropMarksTheEnrollmentDroppedWithoutRemovingIt() throws SQLException {
         Enrollment enrollment = new Enrollment(classId, studentId);
         dao.insert(enrollment);
@@ -88,16 +148,13 @@ public class EnrollmentDAOTest {
         Enrollment found = dao.findById(enrollment.getEnrollmentId());
 
         assertNotNull(found);
-        assertEquals(Enrollment.Status.DROPPED, found.getStatus());    }
+        assertEquals(Enrollment.Status.DROPPED, found.getStatus());
+    }
 
     @Test
     void findByClassOnlyReturnsThatClass() throws SQLException {
-        Course other = new Course("TEST102", "Other Course", "Summer 2026", teacherId);
-        classDao.insert(other);
-        extraClassId = other.getClassId();
-
         Enrollment mine = new Enrollment(classId, studentId);
-        Enrollment theirs = new Enrollment(extraClassId, studentId);
+        Enrollment theirs = new Enrollment(otherClassId, studentId);
         dao.insert(mine);
         dao.insert(theirs);
 
@@ -123,6 +180,17 @@ public class EnrollmentDAOTest {
         dao.delete(enrollment.getEnrollmentId());
 
         assertNull(dao.findById(enrollment.getEnrollmentId()));
+    }
+
+    /**
+     * How many times an enrollment id shows up in a list. Returns int rather
+     * than the long that count() gives back, so assertEquals picks the right
+     * overload.
+     */
+    private int countById(List<Enrollment> enrollments, int enrollmentId) {
+        return (int) enrollments.stream()
+                .filter(enrollment -> enrollment.getEnrollmentId() == enrollmentId)
+                .count();
     }
 
     /**

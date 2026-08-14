@@ -131,6 +131,111 @@ catching the no-package and H2-convention mismatches and confirming the role rul
 belongs in the controller.
 
 
+# Testing — Courses & Enrollment Slice (Ayoung Choi)
+
+## ClassDAO and EnrollmentDAO tests
+
+These run against the real SQLite file rather than H2, since ClassDAO and
+EnrollmentDAO open their own connection through DatabaseConnection instead of
+taking one. `@BeforeEach` creates the users and classes the enrollments point at,
+and `@AfterEach` deletes everything in foreign key order so a failed assert
+doesn't leave rows behind for the next run. Usernames and course codes carry a
+random suffix so a run that dies partway through won't collide with the next one.
+
+Covered in ClassDAOTest: insert and read back, update persists, delete removes.
+
+Covered in EnrollmentDAOTest: insert and read back, findAll, findByClass,
+findByStudent including dropped enrollments, update, drop leaving the row in
+place, delete, and enrolling the same student twice throwing on the
+UNIQUE (class_id, student_id) constraint.
+
+UI test in CoursesControllerUiTest: TestFX fills in the courses form, clicks Add,
+and checks the row lands in the database and shows up in the table.
+
+Final tests: src/test/java/ClassDAOTest.java, src/test/java/EnrollmentDAOTest.java,
+src/test/java/CoursesControllerUiTest.java
+
+## AI-drafted, then curated
+
+**Prompt:** Write JUnit 5 tests for EnrollmentDAO covering findAll(),
+findByStudent(), and update(). The DAO opens its own connection from
+DatabaseConnection and runs against the real SQLite file, so tests must clean up
+after themselves. Enrollments have foreign keys to classes and users, so those
+rows have to exist first. I gave it the DAO and my existing test class.
+
+**What it produced:** A full replacement for my test class with the three new
+tests, a UUID-based fixture naming scheme, and a rewritten `@AfterEach`.
+
+**What it got wrong or trivial:** It never ran the code and said so. The
+`countById` helper it wrote returned `long` while every call site compared it
+against an `int` literal, which doesn't compile under JUnit 5's `assertEquals`
+overloads, so the whole class would have failed to build.
+
+The `findAll` test was close to meaningless. It deliberately avoided asserting on
+the list size, reasoning that the real database might already hold application
+data, and only checked that the two rows it had just inserted each appeared once.
+`findById` already proves that twice over, so nothing about `findAll` returning
+everything was actually being tested.
+
+The `update` test changed the class, the student, the date and the status all at
+once, then made nine assertions about the result. Moving an enrollment to a
+different student isn't something the app can do; enrollments get created or
+dropped. So it was testing a path that can't happen, and if any of the nine
+assertions failed the message wouldn't say which behaviour broke.
+
+It also rewrote `@AfterEach` to run raw
+`DELETE FROM enrollments WHERE class_id IN (?, ?) OR student_id IN (?, ?)`
+instead of going through the DAO, reasoning that cleanup shouldn't depend on a
+query that might itself be broken. That puts enrollment SQL in a second place,
+and the statement runs even when the ids are still 0.
+
+**What I changed:** Made `countById` return `int` so the comparisons compile.
+Rewrote the `findAll` test to record the count before the insert and assert it
+grew by exactly one, which actually exercises the query. Cut the `update` test
+down to changing the date and the status, and added assertions that the class and
+student stayed put, so four assertions instead of nine and all of them describe
+something the app really does. Put `@AfterEach` back on the DAO, extended to clear
+both test classes. Dropped `assertAll` so a failure points at one line.
+
+I kept two things it got right. The UUID suffix on usernames and course codes
+means a run that dies before cleanup won't collide with the next one. And its
+findByStudent test checks that a dropped enrollment is still returned, which is
+what the DAO's Javadoc promises and nothing else was verifying.
+
+All eight tests in EnrollmentDAOTest pass.
+
+## Reflection
+
+The thing that stuck with me is that the AI wrote code it had never run and told
+me so in the same breath. The `countById` type mismatch would have stopped the
+class from compiling, which means none of the three tests it was asked for would
+have executed. It is easy to read a draft that looks structurally right and assume
+it works.
+
+The `findAll` test was the more interesting failure though, because that one
+compiles fine and passes. It just doesn't test what its name says. It inserts two
+rows and checks both come back, which findById already proves, while carefully
+avoiding the one assertion that would actually exercise findAll returning
+everything. A passing test that proves nothing is worse than no test, because it
+looks like coverage.
+
+The other thing I noticed is that the AI has no sense of what the application can
+actually do. It wrote an update test that moves an enrollment to a different
+student, which is not a thing any screen in Trackademics offers. It read the DAO's
+method signature, saw four mutable columns, and tested all four. That is
+reasonable from the code alone and wrong from the product.
+
+It did change my mind on one thing. During my AI code review on PR #40 I turned
+down the suggestion to use unique fixture names, on the grounds that it only
+matters if cleanup fails. Seeing it written out as a six-character UUID suffix,
+the cost is one line, so I took it this time. Rejecting a suggestion once doesn't
+mean it stays rejected.
+
+## AI code review
+
+Run on PR #40 (EnrollmentDAO and EnrollmentDAOTest), adjudicated in the PR
+description: https://github.com/ClamyHatz/Trackademics/pull/40
+
 # Testing — Grades Slice (Lily Keus)
 
 **Prompt Used:**

@@ -3,6 +3,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
@@ -22,8 +23,11 @@ import java.sql.SQLException;
  * unique constraint on (class_id, student_id) stays a last resort rather
  * than the thing the user sees.
  *
+ * Anyone can look at a roster, but only a logged-in teacher gets to enroll
+ * or drop students.
+ *
  * @author Ayoung Choi
- * @version 0.1.1
+ * @version 0.2.0
  * @since 8/8/26
  */
 public class EnrollmentController implements StageAware {
@@ -36,6 +40,9 @@ public class EnrollmentController implements StageAware {
     @FXML private TableColumn<Enrollment, String> statusColumn;
     @FXML private TextField studentField;
     @FXML private Label messageLabel;
+
+    @FXML private Button enrollButton;
+    @FXML private Button dropButton;
 
     private final ClassDAO classDao = new ClassDAO();
     private final EnrollmentDAO enrollmentDao = new EnrollmentDAO();
@@ -71,6 +78,7 @@ public class EnrollmentController implements StageAware {
                 (list, oldCourse, newCourse) -> loadRoster(newCourse));
 
         loadCourses();
+        applyPermissions();
     }
 
     /**
@@ -138,6 +146,23 @@ public class EnrollmentController implements StageAware {
     @FXML
     private void handleBack() {
         stage.setScene(SceneFactory.create(SceneType.HOME, stage));
+    }
+
+    /**
+     * Turns off enrolling and dropping unless a teacher is logged in. The
+     * class list and roster stay readable either way.
+     */
+    private void applyPermissions() {
+        boolean canEdit = Session.isLoggedIn()
+                && "TEACHER".equals(Session.getCurrentUser().getRole());
+
+        enrollButton.setDisable(!canEdit);
+        dropButton.setDisable(!canEdit);
+        studentField.setDisable(!canEdit);
+
+        if (!canEdit) {
+            messageLabel.setText("Only teachers can enroll or drop students.");
+        }
     }
 
     /**
