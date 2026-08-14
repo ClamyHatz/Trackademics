@@ -220,3 +220,36 @@ what happens and what the user might see or encounter if they were using it them
 unit tests just doesn't feel as good as using it for a program with no GUI and user interactivity.
 The test the AI generated were only partially as good as the stuff I manually did and so I mainly
 see them as backing / confirmation that what I made is good and will likely not break.
+
+# Testing — Assignments Slice (Estefan Vicencio)
+
+## Assignment tests
+
+I used ChatGPT to review my assignment tests, then I looked at the suggestions
+and decided what was actually worth changing.
+
+**Prompt:** I'm testing my AssignmentDao and AssignmentService for a JavaFX
+project using JUnit 5 and an in-memory H2 database. Review my current tests and
+suggest any important cases I might be missing. I want to make sure the DAO
+methods and assignment validation are covered.
+
+**What it produced:** It reviewed my DAO, service, and TestFX tests and pointed
+out a few places where the tests could be more specific.
+
+**What it got right:** It noticed that my DAO test didn't check the description
+or make sure the database generated a valid assignment ID. It also noticed that
+my TestFX test only checked that the scene changed, which didn't prove that the
+Assignment Form actually opened.
+
+**What it got wrong:** It suggested enabling SQLite foreign keys in the shared
+DatabaseConnection because a class ID could pass validation even if the class
+didn't exist. I didn't use that change because DatabaseConnection is shared by
+the whole team, and I didn't want to make a project-wide database change for my
+assignment validation.
+
+**What I changed:** I added the generated ID check and the description check to
+my DAO test. I also updated the TestFX test so it checks for the Save button
+after clicking Add Assignment. I kept my AssignmentService tests since they
+already covered the validation cases I needed.
+
+The final tests compile and pass.
