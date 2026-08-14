@@ -1,7 +1,6 @@
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 
@@ -22,8 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * That covers the whole path: the controller reads the form, ClassDAO writes
  * the row, and the ObservableList behind the table picks it up on its own.
  *
+ * The teacher and the session get set up inside start(), because TestFX calls
+ * that before BeforeEach and the controller checks the session as soon as the
+ * FXML loads.
+ *
  * @author Ayoung Choi
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/11/26
  */
 public class CoursesControllerUiTest extends ApplicationTest {
@@ -36,14 +39,17 @@ public class CoursesControllerUiTest extends ApplicationTest {
 
     @Override
     public void start(Stage stage) {
+        try {
+            teacherId = insertUser("testui_teacher", "TEACHER");
+        } catch (SQLException e) {
+            throw new IllegalStateException("Couldn't set up the test teacher", e);
+        }
+
+        Session.setCurrentUser(new User(teacherId, "testui_teacher", "test", "TEACHER"));
+
         Scene scene = SceneFactory.create(SceneType.COURSES, stage);
         stage.setScene(scene);
         stage.show();
-    }
-
-    @BeforeEach
-    public void createTeacher() throws SQLException {
-        teacherId = insertUser("testui_teacher", "TEACHER");
     }
 
     @AfterEach
@@ -54,6 +60,7 @@ public class CoursesControllerUiTest extends ApplicationTest {
             }
         }
         deleteUser(teacherId);
+        Session.clear();
     }
 
     @Test

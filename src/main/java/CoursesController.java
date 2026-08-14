@@ -3,6 +3,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -18,8 +19,11 @@ import java.sql.SQLException;
  * from that list is enough to redraw the table. Every write goes to ClassDAO
  * first and the list only changes if the database call worked.
  *
+ * Anyone can look at the course list, but only a logged-in teacher gets the
+ * buttons that change it.
+ *
  * @author Ayoung Choi
- * @version 0.1.0
+ * @version 0.2.0
  * @since 8/6/26
  */
 public class CoursesController implements StageAware {
@@ -35,6 +39,10 @@ public class CoursesController implements StageAware {
     @FXML private TextField termField;
     @FXML private TextField teacherField;
     @FXML private Label messageLabel;
+
+    @FXML private Button addButton;
+    @FXML private Button updateButton;
+    @FXML private Button deleteButton;
 
     private final ClassDAO dao = new ClassDAO();
     private final ObservableList<Course> courses = FXCollections.observableArrayList();
@@ -68,6 +76,7 @@ public class CoursesController implements StageAware {
                 (list, oldCourse, newCourse) -> fillForm(newCourse));
 
         loadCourses();
+        applyPermissions();
     }
 
     /**
@@ -146,6 +155,23 @@ public class CoursesController implements StageAware {
     @FXML
     private void handleBack() {
         stage.setScene(SceneFactory.create(SceneType.HOME, stage));
+    }
+
+    /**
+     * Turns off the buttons that change the course list unless a teacher is
+     * logged in. The table stays readable either way.
+     */
+    private void applyPermissions() {
+        boolean canEdit = Session.isLoggedIn()
+                && "TEACHER".equals(Session.getCurrentUser().getRole());
+
+        addButton.setDisable(!canEdit);
+        updateButton.setDisable(!canEdit);
+        deleteButton.setDisable(!canEdit);
+
+        if (!canEdit) {
+            messageLabel.setText("Only teachers can add or change courses.");
+        }
     }
 
     /**
