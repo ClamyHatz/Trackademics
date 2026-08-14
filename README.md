@@ -58,11 +58,14 @@ Issue if the team later decides to attempt it for extra credit._
 - **AI-drafted tests:** see [TESTING.md](TESTING.md) — per owner.
   - Bay Shahryar — AI-drafted UserDao and AuthService tests, curated in [TESTING.md](TESTING.md).
   - Lily Keus — AI-drafted Grade-related tests, curated in [TESTING.md](TESTING.md).
+  - Estefan Vicencio — AI-drafted AssignmentDao and AssignmentService tests, curated in [TESTING.md](TESTING.md).
+  
 - **AI code reviews:** <PR link + adjudication note> — per owner.
   - Ayoung Choi — [PR #40](https://github.com/ClamyHatz/Trackademics/pull/40), adjudicated in the PR description: accepted the test cleanup fix (5d54fde), rejected the concurrency, JDBC date, and extra coverage suggestions.
   - Bay Shahryar — [PR #35](https://github.com/ClamyHatz/Trackademics/pull/35), adjudicated in the PR and TESTING.md: accepted the insert() no-generated-key fix and the update() null guard, rejected password hashing.
   - Lily Keus — [PR #54](https://github.com/ClamyHatz/Trackademics/pull/54), adjudicated in the PR: accepted status label addition, only calling findAll() once, rejected Unguarded NPE, deletion of weight, score validation, and weightColumn naming.
-
+  - Estefan Vicencio — [PR #44](https://github.com/ClamyHatz/Trackademics/pull/44#issue-5096052086), adjudicated in the PR: Accepted the TestFX change to make sure the Assignment Form actually opened by checking for the Save button, rejected enabling SQLite foreign keys because DatabaseConnection is shared with the whole team and I didn’t want to make a project-wide database change for my assignment validation.
+  
 ## Extra Credit Log
 | Item | Who | Evidence (Issue/PR) |
 |------|-----|---------------------|
