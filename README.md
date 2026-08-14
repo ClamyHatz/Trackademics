@@ -21,7 +21,7 @@ and PRs. Replace every <placeholder> and delete this comment before you submit.
 |-------|-------|-----------------|--------|------------|-------|--------------------|-------------|
 | 1 — Accounts | Bay Shahryar | baycs | #1 #20 #21 #22 | bay/user-dao-impl, bay/auth-service, bay/login-scene, bay/register-scene, bay/home-logout, bay/testfx-login | #23 #25 #32 #35 #47 #48 #49 #52 #56 | Notifications/alerts | complete |
 | 2 — Courses & Enrollment | Ayoung Choi | achoi0123 | #11 #12 #13 #14 | ayoung/courses-enrollment, ayoung/enrollment-dao | #16 #24 #30 #40 | Data binding (ObservableList / Property) | in-progress |
-| 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments estefan/assignment-data estefan/assignment-dao estefan/assignment-scene estefan/assignment-form estefan/assignment-validation | #5 #26 #27 #31 | TableView populated with live data | complete     |
+| 3 — Assignments | Estefan Vicencio | stef-VnV | #17 #18 #19 | estefan/assignments estefan/assignment-data estefan/assignment-dao estefan/assignment-scene estefan/assignment-form estefan/assignment-validation | #5 #26 #27 #31 #42 #44 #57 | TableView populated with live data | complete     |
 | 4 — Grades & Statistics| Lily Keus | ClamyHatz | #8 #9 #10 #33 #37 #39 | lily/grade-viewer, lily/grade-var-patch, lily/grade-viewer-DAO-and-Test, lily/home-page, lily/fake-data-insertion, lily/fxml-visuals, lily/AI-Tests-And-Code-Review | #28 #29 #34 #38 #43 #51 #54 | TableView / ListView populated with live data | complete |
 
 _Status values: planned · in-progress · complete_
