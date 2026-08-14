@@ -10,7 +10,7 @@
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="LoginController"
+      fx:controller="RegisterController"
       alignment="CENTER"
       spacing="15">
 
@@ -18,7 +18,7 @@
         <Insets top="40" right="40" bottom="40" left="40"/>
     </padding>
 
-    <Label text="Log In"
+    <Label text="Create an Account"
            style="-fx-font-size: 28px; -fx-font-weight: bold;" />
 
     <TextField fx:id="usernameField"
@@ -29,19 +29,18 @@
                    promptText="Password"
                    maxWidth="260" />
 
-    <Button fx:id="loginButton"
-            text="Log In"
+    <PasswordField fx:id="confirmPasswordField"
+                   promptText="Confirm password"
+                   maxWidth="260" />
+
+    <Button text="Register"
             prefWidth="260"
-            onAction="#handleLogin" />
+            onAction="#handleRegister" />
 
     <Label fx:id="messageLabel"
            style="-fx-text-fill: #b00020;" />
 
-    <Hyperlink text="Create an account"
-               onAction="#openRegister" />
-
-    <Button text="Back to Home"
-            prefWidth="260"
-            onAction="#openHome" />
+    <Hyperlink text="Back to login"
+               onAction="#openLogin" />
 
 </VBox>

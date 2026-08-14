@@ -84,3 +84,236 @@ adjudication:
 
 Most findings were out of scope or misread the intentional design. I accepted the
 two small fixes that genuinely improved the code.
+
+
+## AuthService tests
+
+The AuthService tests run against in-memory H2, same pattern as the UserDao
+tests, a blank users table built with `@BeforeEach`, connection closed with
+`@AfterEach`. Each test wraps a real UserDao in an AuthService, so it goes
+through the full path from service to database.
+
+Tests covered: valid registration, every validation failure (blank username,
+blank password, missing role, invalid role, mismatched passwords, duplicate
+username), login success, wrong password, unknown username, blank fields, and
+the security case where wrong-password and unknown-user return the same message.
+
+Final tests: `src/test/java/AuthServiceTest.java`
+
+## AI-drafted AuthService tests, then curated
+
+**Prompt:** I gave ChatGPT the AuthService, AuthResult, UserDao, and User
+signatures and the register/login rules, and asked for a JUnit 5 test class using
+in-memory H2. I left out my exact H2 setup and the fact that my project uses no
+packages, so its assumptions would show.
+
+**What it got right:** Solid coverage, including the security case (same message
+for wrong password and unknown user) and both STUDENT and TEACHER registration.
+Its `assertFailed` helper (checks the full failure contract in one place) is a
+clean idea.
+
+**What it got wrong:** A leftover package comment (my project has no packages), a
+different H2 setup than my team's (random UUID name with `DB_CLOSE_DELAY=-1` vs.
+our simple named db with `DROP TABLE IF EXISTS`), and `INT` where our DDL uses
+`INTEGER`. None break, but none match our convention.
+
+**Style call:** Its parameterized blank-field test is cleaner than my
+one-method-per-case style, but I kept mine since the rest of our suite doesn't use
+parameterized tests and I wanted consistency.
+
+**Architecture note:** It registered a TEACHER through AuthService, which is
+correct, my STUDENT-only rule lives in the controller, not the service, so the
+service still accepts either role.
+
+**What I changed:** I kept my existing `AuthServiceTest.java`, which already
+covers these cases in our style and passes. The value here was the evaluation:
+catching the no-package and H2-convention mismatches and confirming the role rule
+belongs in the controller.
+
+
+# Testing — Grades Slice (Lily Keus)
+
+**Prompt Used:**
+
+Attached are Grade, GradeDao, GradeController, grades.fxml, and GradeDaoTest.
+I want you to take GradeDaoTest and make a new file GradeTest, which will test 
+all other files attached. It needs to cover "DAO + logic, including an edge 
+case" and "at least one TestFX UI test." Make these tests as critical as 
+possible. All refrenced files exist. Ask for any needed files, and any needed 
+questions before you draft the unit tests.
+
+**I then got asked:**
+- Should GradeTest.java replace GradeDaoTest, or should both remain in the 
+project? I can make GradeTest comprehensive enough that GradeDaoTest 
+becomes redundant.
+- Create one file for all tests but separate types with large comments.
+
+- May I use reflection to directly test private controller logic such as 
+readScore(), updateOverallGrade(), and canAccessCourse()? If your instructor 
+discourages reflection, I’ll test those behaviors strictly through the UI/public 
+effects instead.
+- We have not learned reflections so it's best to avoid it.
+
+**I then attached the following files upon it's request**
+
+- build.gradle
+- Session.java
+- User.java + UserDao.java
+- DatabaseConnection.java
+- Assignment.java + AssignmentDao.java
+- Enrollment.java + EnrollmentDAO.java
+- Course.java + ClassDAO.java
+- StageAware.java
+- SceneFactory.java
+- SceneType.java
+
+***Output Evaluation***
+
+**What it produced**
+
+A 19 test Unit test covering DAO + logic, including an edge case and one JavaFX UI test.
+
+**What it got Wrong**
+
+There're only 3 things that it did that can be considered wrong.
+
+1, it mainly tested functions that the user would use and left some of the more 
+mechanical things such as `fillSelectionBox()` untested. I did not ask for a full 
+on mechanical test, though I did request "Make these tests as critical as possible," 
+but as I did not specifically ask for them they were not generated, thus in my next 
+prompt they were requested:"Can you add some tests for the more mechanical side of 
+GradeController? There are a lot of commands in that one and only 3 tests were given 
+for the whole file." It then generated 7 more tests that all looked good and passed, 
+but they still didn't cover some of the more mechanical bits. I did not request them 
+in the prompt, and adding any more tests would be pointless as the AI would most likely 
+keep generating low value tests.
+
+2, it put all the tests into one file. I *did* request this, but with last prompt it 
+made the total tests 26 which is a lot. I requested it to be made this way, so I 
+wouldn't fill up the tests folder making it look more disorganized, but that backfired 
+and made the test itself less organized.
+
+3, this is less of a coding error and more for style. It added javadoc comments to the 
+tops of the first 3 items, `start` `setUpDatabase` `tearDownDatabase` but left every 
+other test / method un-commented on, and that disorganization is simply annoying. 
+Though it did a good job on separating each test field with a banner comments.
+
+**What I Changed**
+
+I removed the 3 comments from the top 3 methods as that was easier than adding more 
+comments to the rest. I did not add more tests to cover the mechanical bit of 
+GradeController as it seemed to work perfectly during a build test, where I manually 
+tested many possible ways to break it. I prefer testing with the program actually running. 
+Finally, I did not remove any tests nor split the file into multiple parts, as my worry of 
+group disorganization outweighs the file disorganization worry. And having many tests, though 
+some low value is worth having if it already exists. This is all said and left alone mainly
+because, again, I tested it myself with a running build, and put it through the ringer to 
+test ever way I could think of breaking it. And adding that on to the fact that it passed 
+all the tests the AI made,that are supposedly "as critical as possible," I felt satisfied 
+with the results of it all and concluded that no further testing was necessary.
+
+**Reflection**
+
+With a program that you can actually use and has a GUI and such having test feels less valuable.
+I can simply test everything myself with the program running. If any errors occur I can see
+what happens and what the user might see or encounter if they were using it themselves. So using
+unit tests just doesn't feel as good as using it for a program with no GUI and user interactivity.
+The test the AI generated were only partially as good as the stuff I manually did and so I mainly
+see them as backing / confirmation that what I made is good and will likely not break.
+
+# Testing — Assignments Slice (Estefan Vicencio)
+
+## Assignment tests
+
+The AssignmentDao tests use an in-memory H2 database so the tests can work with
+assignment data without changing the real Trackademics database. The test creates
+its own assignments table and uses that temporary database to save and read back
+assignment data.
+
+The DAO test checks that an assignment can be inserted and then found again. It
+checks the generated assignment ID, class ID, title, description, due date, points
+possible, and status so the test is checking the actual saved values and not just
+whether the method ran without crashing.
+
+The AssignmentService tests check the validation for assignments. They include a
+valid assignment and invalid cases for a bad class ID, missing title, missing due
+date, and zero points. These tests make sure the service returns an error when the
+assignment is missing required information.
+
+The TestFX test checks the assignment navigation. It clicks the Add Assignment
+button and then checks that the Assignment Form actually opened by looking for the
+Save button. This makes the test more specific than only checking that the scene
+changed.
+
+Final tests:
+src/test/java/AssignmentDaoTest.java
+src/test/java/AssignmentServiceTest.java
+src/test/java/AssignmentNavigationTest.java
+
+## AI-drafted, then curated
+
+I used ChatGPT to review my assignment tests and point out anything important that
+I might have missed. I looked through the suggestions and only kept the changes
+that actually helped my tests.
+
+**Prompt:** I'm testing my AssignmentDao and AssignmentService for a JavaFX
+project using JUnit 5 and an in-memory H2 database. Review my current tests and
+suggest any important cases I might be missing. I want to make sure the DAO
+methods and assignment validation are covered.
+
+**What it produced:** It reviewed my AssignmentDao, AssignmentService, and TestFX
+tests and pointed out a few places where the tests were too general. It noticed
+that my DAO test was missing checks for some saved values, and it also noticed
+that my TestFX test only proved that the scene changed instead of proving that
+the correct assignment form opened.
+
+**What it got right:** It correctly pointed out that my DAO test did not check
+the description or confirm that the database generated a valid assignment ID.
+The test could have passed even if the description was not being saved correctly
+or if the generated ID was not being set. I added checks for both of those
+values.
+
+It was also right about the TestFX test. My original test saved the old scene,
+clicked Add Assignment, and then checked that the current scene was different.
+That showed that navigation happened, but it didn't prove that the Assignment
+Form was the screen that opened. I changed the test so it also checks that the
+Save button exists after the scene changes.
+
+The AI also confirmed that my AssignmentService tests already covered the main
+validation cases I was using, including bad class ID, missing title, missing due
+date, and zero points.
+
+**What it got wrong:** It suggested enabling SQLite foreign-key enforcement in
+the shared DatabaseConnection because a class ID greater than zero could still
+refer to a class that doesn't exist. The suggestion was to enable foreign keys
+for every database connection.
+
+I rejected that change because DatabaseConnection is shared by the whole team.
+Changing it from my assignment branch could affect other parts of the project,
+and it wasn't necessary for the assignment validation I was working on. I didn't
+want to make a project-wide database change just because the AI suggested it.
+
+**What I changed:** I added a check that the generated assignment ID is greater
+than zero and added a check that the assignment description was saved and read
+back correctly. I also updated the TestFX test so it checks for the Save button
+after clicking Add Assignment, which confirms that the Assignment Form actually
+opened.
+
+I kept my AssignmentService tests because they already covered the validation
+cases I needed. I did not change DatabaseConnection because that would've been a
+shared project change and wasn't needed for my assignment tests.
+
+**Reflection:** The main thing I learned was that a test can pass without really
+proving everything I think it proves. My DAO test already saved and read an
+assignment, but it was still missing checks for some of the actual data. Adding
+the description and generated ID checks made the test more complete.
+
+The same thing happened with the TestFX test. Checking that the scene changed
+wasn't enough because it could have changed to the wrong scene and still passed.
+Checking for the Save button made it clear that the Assignment Form actually
+opened.
+
+I also learned that AI suggestions still need to be reviewed before using them.
+Some of the suggestions made my tests better, but the DatabaseConnection change
+would've affected shared code and wasn't needed for what I was testing, so I
+left it out. The final tests compile and pass.
