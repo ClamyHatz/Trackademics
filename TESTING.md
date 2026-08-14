@@ -225,31 +225,95 @@ see them as backing / confirmation that what I made is good and will likely not 
 
 ## Assignment tests
 
-I used ChatGPT to review my assignment tests, then I looked at the suggestions
-and decided what was actually worth changing.
+The AssignmentDao tests use an in-memory H2 database so the tests can work with
+assignment data without changing the real Trackademics database. The test creates
+its own assignments table and uses that temporary database to save and read back
+assignment data.
+
+The DAO test checks that an assignment can be inserted and then found again. It
+checks the generated assignment ID, class ID, title, description, due date, points
+possible, and status so the test is checking the actual saved values and not just
+whether the method ran without crashing.
+
+The AssignmentService tests check the validation for assignments. They include a
+valid assignment and invalid cases for a bad class ID, missing title, missing due
+date, and zero points. These tests make sure the service returns an error when the
+assignment is missing required information.
+
+The TestFX test checks the assignment navigation. It clicks the Add Assignment
+button and then checks that the Assignment Form actually opened by looking for the
+Save button. This makes the test more specific than only checking that the scene
+changed.
+
+Final tests:
+src/test/java/AssignmentDaoTest.java
+src/test/java/AssignmentServiceTest.java
+src/test/java/AssignmentNavigationTest.java
+
+## AI-drafted, then curated
+
+I used ChatGPT to review my assignment tests and point out anything important that
+I might have missed. I looked through the suggestions and only kept the changes
+that actually helped my tests.
 
 **Prompt:** I'm testing my AssignmentDao and AssignmentService for a JavaFX
 project using JUnit 5 and an in-memory H2 database. Review my current tests and
 suggest any important cases I might be missing. I want to make sure the DAO
 methods and assignment validation are covered.
 
-**What it produced:** It reviewed my DAO, service, and TestFX tests and pointed
-out a few places where the tests could be more specific.
+**What it produced:** It reviewed my AssignmentDao, AssignmentService, and TestFX
+tests and pointed out a few places where the tests were too general. It noticed
+that my DAO test was missing checks for some saved values, and it also noticed
+that my TestFX test only proved that the scene changed instead of proving that
+the correct assignment form opened.
 
-**What it got right:** It noticed that my DAO test didn't check the description
-or make sure the database generated a valid assignment ID. It also noticed that
-my TestFX test only checked that the scene changed, which didn't prove that the
-Assignment Form actually opened.
+**What it got right:** It correctly pointed out that my DAO test did not check
+the description or confirm that the database generated a valid assignment ID.
+The test could have passed even if the description was not being saved correctly
+or if the generated ID was not being set. I added checks for both of those
+values.
 
-**What it got wrong:** It suggested enabling SQLite foreign keys in the shared
-DatabaseConnection because a class ID could pass validation even if the class
-didn't exist. I didn't use that change because DatabaseConnection is shared by
-the whole team, and I didn't want to make a project-wide database change for my
-assignment validation.
+It was also right about the TestFX test. My original test saved the old scene,
+clicked Add Assignment, and then checked that the current scene was different.
+That showed that navigation happened, but it didn't prove that the Assignment
+Form was the screen that opened. I changed the test so it also checks that the
+Save button exists after the scene changes.
 
-**What I changed:** I added the generated ID check and the description check to
-my DAO test. I also updated the TestFX test so it checks for the Save button
-after clicking Add Assignment. I kept my AssignmentService tests since they
-already covered the validation cases I needed.
+The AI also confirmed that my AssignmentService tests already covered the main
+validation cases I was using, including bad class ID, missing title, missing due
+date, and zero points.
 
-The final tests compile and pass.
+**What it got wrong:** It suggested enabling SQLite foreign-key enforcement in
+the shared DatabaseConnection because a class ID greater than zero could still
+refer to a class that doesn't exist. The suggestion was to enable foreign keys
+for every database connection.
+
+I rejected that change because DatabaseConnection is shared by the whole team.
+Changing it from my assignment branch could affect other parts of the project,
+and it wasn't necessary for the assignment validation I was working on. I didn't
+want to make a project-wide database change just because the AI suggested it.
+
+**What I changed:** I added a check that the generated assignment ID is greater
+than zero and added a check that the assignment description was saved and read
+back correctly. I also updated the TestFX test so it checks for the Save button
+after clicking Add Assignment, which confirms that the Assignment Form actually
+opened.
+
+I kept my AssignmentService tests because they already covered the validation
+cases I needed. I did not change DatabaseConnection because that would've been a
+shared project change and wasn't needed for my assignment tests.
+
+**Reflection:** The main thing I learned was that a test can pass without really
+proving everything I think it proves. My DAO test already saved and read an
+assignment, but it was still missing checks for some of the actual data. Adding
+the description and generated ID checks made the test more complete.
+
+The same thing happened with the TestFX test. Checking that the scene changed
+wasn't enough because it could have changed to the wrong scene and still passed.
+Checking for the Save button made it clear that the Assignment Form actually
+opened.
+
+I also learned that AI suggestions still need to be reviewed before using them.
+Some of the suggestions made my tests better, but the DatabaseConnection change
+would've affected shared code and wasn't needed for what I was testing, so I
+left it out. The final tests compile and pass.
